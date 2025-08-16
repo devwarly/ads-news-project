@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         "color": color,
                         "opacity": 0.4,
                         "width": 1
-                    },
+                        },
                     "move": {
                         "enable": true,
                         "speed": 2,
@@ -405,6 +405,74 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
 
+    // --- Funções de Compartilhamento ---
+    const setupShareButtons = (noticia) => {
+        const shareButtons = document.getElementById('share-buttons');
+
+        if (!shareButtons) return;
+
+        const noticiaUrl = window.location.href;
+        const noticiaTitle = encodeURIComponent(noticia.titulo);
+
+        shareButtons.addEventListener('click', (e) => {
+            e.preventDefault();
+            const button = e.target.closest('a, button');
+            const platform = button?.dataset.sharePlatform;
+            let shareLink = '';
+
+            switch (platform) {
+                case 'whatsapp':
+                    shareLink = `https://api.whatsapp.com/send?text=${noticiaTitle}%0A${encodeURIComponent(noticiaUrl)}`;
+                    window.open(shareLink, '_blank', 'noopener,noreferrer');
+                    break;
+                case 'facebook':
+                    shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(noticiaUrl)}`;
+                    window.open(shareLink, '_blank', 'noopener,noreferrer');
+                    break;
+                case 'twitter':
+                    shareLink = `https://twitter.com/intent/tweet?text=${noticiaTitle}&url=${encodeURIComponent(noticiaUrl)}`;
+                    window.open(shareLink, '_blank', 'noopener,noreferrer');
+                    break;
+                case 'linkedin':
+                    shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(noticiaUrl)}`;
+                    window.open(shareLink, '_blank', 'noopener,noreferrer');
+                    break;
+                case 'copy':
+                    // Verifica se a API de Clipboard está disponível e é segura
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(noticiaUrl)
+                            .then(() => {
+                                alert('Link copiado para a área de transferência!');
+                            })
+                            .catch(err => {
+                                console.error('Falha ao copiar o link:', err);
+                                alert('Erro ao copiar o link.');
+                            });
+                    } else {
+                        // Solução de fallback para navegadores mais antigos
+                        const textarea = document.createElement('textarea');
+                        textarea.value = noticiaUrl;
+                        textarea.style.position = 'fixed'; // Evita que a textarea afete o layout
+                        document.body.appendChild(textarea);
+                        textarea.focus();
+                        textarea.select();
+                        try {
+                            const successful = document.execCommand('copy');
+                            alert(successful ? 'Link copiado para a área de transferência!' : 'Erro ao copiar o link.');
+                        } catch (err) {
+                            console.error('Falha ao copiar o link (execCommand):', err);
+                            alert('Erro ao copiar o link.');
+                        }
+                        document.body.removeChild(textarea);
+                    }
+                    break;
+                default:
+                    return;
+            }
+        });
+    };
+
+
     // --- Lógica de Páginas ---
 
     if (document.getElementById('noticias-container')) {
@@ -434,11 +502,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = noticia.texto;
                     
-                    // Lógica para remover a legenda de anexo na visualização da notícia
                     const captions = tempDiv.querySelectorAll('.attachment__caption');
                     captions.forEach(caption => {
                         caption.remove();
                     });
+
+                    const figures = tempDiv.querySelectorAll('figure');
+                    if (figures.length === 1 && !figures[0].classList.contains('attachment-gallery')) {
+                        figures[0].classList.add('single-image');
+                    }
 
                     const htmlTextoModificado = tempDiv.innerHTML;
 
@@ -453,14 +525,21 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="col-12">
                                 <h1 class="display-4">${noticia.titulo}</h1>
                                 <p class="text-muted">Publicado em: ${new Date(noticia.data).toLocaleDateString()}</p>
+                                
+                                <div id="share-buttons" class="mb-4 d-flex flex-wrap align-items-center gap-2">
+                                    <p class="m-0 align-self-center me-2">Compartilhe:</p>
+                                    <a href="#" class="btn btn-success" data-share-platform="whatsapp"><i class="fab fa-whatsapp"></i></a>
+                                    <a href="#" class="btn btn-primary" data-share-platform="facebook"><i class="fab fa-facebook-f"></i></a>
+                                    <a href="#" class="btn btn-info" data-share-platform="twitter"><i class="fab fa-twitter"></i></a>
+                                    <a href="#" class="btn btn-secondary" data-share-platform="linkedin"><i class="fab fa-linkedin-in"></i></a>
+                                    <button class="btn btn-secondary" data-share-platform="copy"><i class="fas fa-link"></i></button>
+                                </div>
                                 <div class="lead">${htmlTextoModificado}</div>
                             </div>
                         </div>
                     `;
                     
-                    // Lógica para visualização de imagem em tamanho original (modal)
                     const galleryContainer = document.querySelector('.lead'); 
-
                     if (galleryContainer) {
                         galleryContainer.addEventListener('click', (event) => {
                             const target = event.target;
@@ -475,16 +554,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         const noticiasRelacionadas = todasNoticias.filter(n => n.id != noticiaId).slice(0, 3);
                         renderizarNoticias('noticias-relacionadas-container', noticiasRelacionadas);
                     });
+                    
+                    setupShareButtons(noticia);
                 } else {
-                    document.getElementById('noticia-completa-container').innerHTML = `
-                        <div class="alert alert-danger text-center">Notícia não encontrada.</div>
-                    `;
+                    container.innerHTML = `<div class="alert alert-danger text-center">Notícia não encontrada.</div>`;
                 }
             });
         } else {
-            document.getElementById('noticia-completa-container').innerHTML = `
-                <div class="alert alert-danger text-center">ID da notícia não fornecido.</div>
-            `;
+            document.getElementById('noticia-completa-container').innerHTML = `<div class="alert alert-danger text-center">ID da notícia não fornecido.</div>`;
         }
     }
 
@@ -679,33 +756,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- Nova lógica para aplicar estilos dinâmicos ---
+    const trixEditor = document.querySelector('trix-editor');
+    if (trixEditor) {
+        trixEditor.addEventListener('trix-change', (event) => {
+            const editorElement = event.target;
+            const figures = editorElement.querySelectorAll('figure');
+
+            figures.forEach(figure => {
+                figure.classList.remove('single-image');
+            });
+            
+            if (figures.length === 1 && !figures[0].classList.contains('attachment-gallery')) {
+                figures[0].classList.add('single-image');
+            }
+        });
+    }
+
     inicializarTrixUploader();
     
     // Funções do Modal
     function createModal(imageUrl) {
-        // Cria o overlay (fundo escuro)
         const modalOverlay = document.createElement('div');
         modalOverlay.classList.add('modal-overlay');
         document.body.appendChild(modalOverlay);
 
-        // Cria o container do modal
         const modalContainer = document.createElement('div');
         modalContainer.classList.add('modal-container');
         modalOverlay.appendChild(modalContainer);
 
-        // Cria a imagem dentro do modal
         const modalImage = document.createElement('img');
         modalImage.src = imageUrl;
         modalImage.classList.add('modal-image');
         modalContainer.appendChild(modalImage);
 
-        // Adiciona um botão para fechar o modal
         const closeButton = document.createElement('button');
         closeButton.classList.add('modal-close-button');
-        closeButton.innerHTML = '<i class="fas fa-times"></i>'; // Ícone de fechar (Font Awesome)
+        closeButton.innerHTML = '<i class="fas fa-times"></i>';
         modalContainer.appendChild(closeButton);
 
-        // Fecha o modal ao clicar no overlay ou no botão de fechar
         modalOverlay.addEventListener('click', closeModal);
         closeButton.addEventListener('click', closeModal);
 
@@ -713,6 +802,4 @@ document.addEventListener('DOMContentLoaded', () => {
             modalOverlay.remove();
         }
     }
-
-
 });
