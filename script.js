@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Lógica de Temas ---
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const body = document.body;
-    const logoImg = document.getElementById('logo-img'); // Adicionado: seleciona a imagem do logo
+    const logoImg = document.getElementById('logo-img');
 
     const initParticles = (color) => {
         if (typeof particlesJS !== 'undefined') {
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (themeToggleBtn) {
                 themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
             }
-            if (logoImg) { // Adicionado: muda a imagem para o tema escuro
+            if (logoImg) {
                 logoImg.src = 'img/1.png';
             }
         } else {
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (themeToggleBtn) {
                 themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
             }
-            if (logoImg) { // Adicionado: muda a imagem para o tema claro
+            if (logoImg) {
                 logoImg.src = 'img/2.png';
             }
         }
@@ -151,8 +151,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const noticias = await response.json();
             
-            // Lógica de ordenação: a.data - b.data para ordem crescente, b.data - a.data para decrescente (mais recente primeiro)
-            // Certifique-se de que a data no backend está em um formato que o JavaScript consegue ler (ex: "2025-08-15T15:00:00Z")
             return noticias.sort((a, b) => new Date(b.data) - new Date(a.data));
             
         } catch (error) {
@@ -233,13 +231,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (container) {
             container.innerHTML = '';
             listaNoticias.forEach(noticia => {
+                const imagemHtml = noticia.imagem ? `<img src="http://localhost:8080${noticia.imagem}" class="card-img-top" alt="Imagem da notícia">` : '';
+                
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = noticia.texto;
+                const textoPlano = tempDiv.textContent || tempDiv.innerText || '';
+                
+                const limiteCaracteres = 150; 
+                let textoCurto = textoPlano.length > limiteCaracteres 
+                    ? textoPlano.substring(0, limiteCaracteres) + '...'
+                    : textoPlano;
+                
                 container.innerHTML += `
                     <div class="col-md-4 mb-4">
                         <div class="card h-100">
-                            ${noticia.imagem ? `<img src="http://localhost:8080${noticia.imagem}" class="card-img-top" alt="Imagem da notícia">` : ''}
+                            ${imagemHtml}
                             <div class="card-body">
                                 <h5 class="card-title">${noticia.titulo}</h5>
-                                <div class="card-text">${noticia.texto}</div>
+                                <p class="card-text">${textoCurto}</p>
                                 <a href="noticia.html?id=${noticia.id}" class="btn btn-primary mt-2">Ler mais</a>
                             </div>
                         </div>
@@ -340,7 +349,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const preencherFormularioNoticia = (noticia) => {
-        const form = document.getElementById('news-form');
         document.getElementById('noticia-id').value = noticia.id;
         document.getElementById('titulo-noticia').value = noticia.titulo;
         document.getElementById('btn-submit-news').textContent = 'Salvar Edição';
@@ -348,13 +356,45 @@ document.addEventListener('DOMContentLoaded', () => {
         const trixEditor = document.querySelector('trix-editor');
         trixEditor.value = noticia.texto;
 
+        const imageInput = document.getElementById('imagem-noticia');
         const imagePreview = document.getElementById('image-preview');
+
+        // Lógica de UI para a imagem de destaque
         if (noticia.imagem) {
-            imagePreview.innerHTML = `<img src="http://localhost:8080${noticia.imagem}" class="img-fluid rounded">`;
+            imageInput.style.display = 'none';
+            imagePreview.innerHTML = `
+                <div class="position-relative d-inline-block">
+                    <img src="http://localhost:8080${noticia.imagem}" class="img-fluid rounded" alt="Pré-visualização da imagem de destaque">
+                    <button type="button" class="btn btn-danger btn-sm position-absolute top-0 start-100 translate-middle rounded-circle" id="remove-image-btn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            document.getElementById('remove-image-btn').addEventListener('click', () => {
+                imageInput.style.display = 'block';
+                imagePreview.innerHTML = '';
+                imageInput.value = '';
+            });
         } else {
+            imageInput.style.display = 'block';
             imagePreview.innerHTML = '';
         }
     };
+    
+    const resetNewsForm = () => {
+        const newsForm = document.getElementById('news-form');
+        const trixEditor = document.querySelector('trix-editor');
+        const imageInput = document.getElementById('imagem-noticia');
+        const imagePreview = document.getElementById('image-preview');
+        const btnSubmit = document.getElementById('btn-submit-news');
+
+        newsForm.reset();
+        trixEditor.value = '';
+        document.getElementById('noticia-id').value = '';
+        btnSubmit.textContent = 'Adicionar Notícia';
+        imageInput.style.display = 'block';
+        imagePreview.innerHTML = '';
+    }
 
     const preencherFormularioCurriculo = (periodo) => {
         const form = document.getElementById('curriculo-form');
@@ -389,22 +429,48 @@ document.addEventListener('DOMContentLoaded', () => {
             carregarNoticiaPorId(noticiaId).then(noticia => {
                 if (noticia) {
                     const container = document.getElementById('noticia-completa-container');
-                    const htmlTexto = marked.parse(noticia.texto);
+                    const imagemHtml = noticia.imagem ? `<img src="http://localhost:8080${noticia.imagem}" class="img-fluid rounded mb-4" alt="Imagem da notícia" >` : '';
+
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = noticia.texto;
+                    
+                    // Lógica para remover a legenda de anexo na visualização da notícia
+                    const captions = tempDiv.querySelectorAll('.attachment__caption');
+                    captions.forEach(caption => {
+                        caption.remove();
+                    });
+
+                    const htmlTextoModificado = tempDiv.innerHTML;
+
                     container.innerHTML = `
                         <button onclick="window.history.back()" class="btn btn-primary mb-4">
                             <i class="fas fa-arrow-left"></i> Voltar
                         </button>
                         <div class="row">
                             <div class="col-12 text-center">
-                                ${noticia.imagem ? `<img src="http://localhost:8080${noticia.imagem}" class="img-fluid rounded mb-4" alt="Imagem da notícia" >` : ''}
+                                ${imagemHtml}
                             </div>
                             <div class="col-12">
                                 <h1 class="display-4">${noticia.titulo}</h1>
                                 <p class="text-muted">Publicado em: ${new Date(noticia.data).toLocaleDateString()}</p>
-                                <div class="lead">${htmlTexto}</div>
+                                <div class="lead">${htmlTextoModificado}</div>
                             </div>
                         </div>
                     `;
+                    
+                    // Lógica para visualização de imagem em tamanho original (modal)
+                    const galleryContainer = document.querySelector('.lead'); 
+
+                    if (galleryContainer) {
+                        galleryContainer.addEventListener('click', (event) => {
+                            const target = event.target;
+                            if (target.tagName === 'IMG' && target.closest('.attachment-gallery')) {
+                                const imageUrl = target.src;
+                                createModal(imageUrl);
+                            }
+                        });
+                    }
+                    
                     carregarNoticiasDoBackend().then(todasNoticias => {
                         const noticiasRelacionadas = todasNoticias.filter(n => n.id != noticiaId).slice(0, 3);
                         renderizarNoticias('noticias-relacionadas-container', noticiasRelacionadas);
@@ -444,6 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (loginContainer && adminPanel) {
                     loginContainer.classList.add('d-none');
                     adminPanel.classList.remove('d-none');
+                    
                     const noticiasParaAdmin = await carregarNoticiasDoBackend();
                     renderizarNoticiasAdmin(noticiasParaAdmin);
 
@@ -503,10 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 if (response.ok) {
                     alert('Notícia salva com sucesso!');
-                    newsForm.reset();
-                    document.getElementById('noticia-id').value = '';
-                    btnSubmit.textContent = 'Adicionar Notícia';
-                    document.getElementById('image-preview').innerHTML = '';
+                    resetNewsForm();
                     const noticiasAtualizadas = await carregarNoticiasDoBackend();
                     renderizarNoticiasAdmin(noticiasAtualizadas);
                 } else {
@@ -573,4 +637,82 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // --- Lógica para upload de imagens no Trix Editor ---
+    const inicializarTrixUploader = () => {
+        document.removeEventListener('trix-attachment-add', handleTrixAttachment);
+        document.addEventListener('trix-attachment-add', handleTrixAttachment);
+    };
+
+    const handleTrixAttachment = async (event) => {
+        const attachment = event.attachment;
+        const file = attachment.file;
+    
+        if (file && file.type.startsWith('image/')) {
+            const formData = new FormData();
+            formData.append('file', file);
+    
+            try {
+                const response = await fetch('http://localhost:8080/api/upload', {
+                    method: 'POST',
+                    body: formData,
+                });
+    
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Falha no upload da imagem.');
+                }
+    
+                const uploadResult = await response.json();
+                const imageUrl = `http://localhost:8080${uploadResult.url}`;
+    
+                attachment.setAttributes({
+                    url: imageUrl,
+                    href: imageUrl
+                });
+    
+            } catch (error) {
+                console.error('Erro ao fazer upload do anexo:', error);
+                alert(`Erro ao anexar a imagem: ${error.message}`);
+                attachment.remove();
+            }
+        }
+    };
+
+    inicializarTrixUploader();
+    
+    // Funções do Modal
+    function createModal(imageUrl) {
+        // Cria o overlay (fundo escuro)
+        const modalOverlay = document.createElement('div');
+        modalOverlay.classList.add('modal-overlay');
+        document.body.appendChild(modalOverlay);
+
+        // Cria o container do modal
+        const modalContainer = document.createElement('div');
+        modalContainer.classList.add('modal-container');
+        modalOverlay.appendChild(modalContainer);
+
+        // Cria a imagem dentro do modal
+        const modalImage = document.createElement('img');
+        modalImage.src = imageUrl;
+        modalImage.classList.add('modal-image');
+        modalContainer.appendChild(modalImage);
+
+        // Adiciona um botão para fechar o modal
+        const closeButton = document.createElement('button');
+        closeButton.classList.add('modal-close-button');
+        closeButton.innerHTML = '<i class="fas fa-times"></i>'; // Ícone de fechar (Font Awesome)
+        modalContainer.appendChild(closeButton);
+
+        // Fecha o modal ao clicar no overlay ou no botão de fechar
+        modalOverlay.addEventListener('click', closeModal);
+        closeButton.addEventListener('click', closeModal);
+
+        function closeModal() {
+            modalOverlay.remove();
+        }
+    }
+
+
 });
