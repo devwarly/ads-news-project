@@ -429,16 +429,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(noticiaUrl)}`;
                     window.open(shareLink, '_blank', 'noopener,noreferrer');
                     break;
-                case 'twitter':
-                    shareLink = `https://twitter.com/intent/tweet?text=${noticiaTitle}&url=${encodeURIComponent(noticiaUrl)}`;
-                    window.open(shareLink, '_blank', 'noopener,noreferrer');
-                    break;
                 case 'linkedin':
                     shareLink = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(noticiaUrl)}`;
                     window.open(shareLink, '_blank', 'noopener,noreferrer');
                     break;
+                case 'instagram':
+                    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+                    if (isMobile) {
+                        navigator.clipboard.writeText(noticiaUrl)
+                            .then(() => {
+                                alert('Link copiado! Cole-o na sua postagem ou Stories no Instagram.');
+                                window.open('https://www.instagram.com', '_blank', 'noopener,noreferrer');
+                            })
+                            .catch(err => {
+                                console.error('Falha ao copiar o link:', err);
+                                alert('Erro ao copiar o link. Por favor, tente novamente.');
+                            });
+                    } else {
+                        alert('Para compartilhar no Instagram, copie o link e cole na sua postagem ou Stories.');
+                        navigator.clipboard.writeText(noticiaUrl)
+                            .catch(err => console.error('Falha ao copiar o link:', err));
+                    }
+                    break;
                 case 'copy':
-                    // Verifica se a API de Clipboard está disponível e é segura
                     if (navigator.clipboard && window.isSecureContext) {
                         navigator.clipboard.writeText(noticiaUrl)
                             .then(() => {
@@ -449,10 +462,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                 alert('Erro ao copiar o link.');
                             });
                     } else {
-                        // Solução de fallback para navegadores mais antigos
                         const textarea = document.createElement('textarea');
                         textarea.value = noticiaUrl;
-                        textarea.style.position = 'fixed'; // Evita que a textarea afete o layout
+                        textarea.style.position = 'fixed';
                         document.body.appendChild(textarea);
                         textarea.focus();
                         textarea.select();
@@ -530,8 +542,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <p class="m-0 align-self-center me-2">Compartilhe:</p>
                                     <a href="#" class="btn btn-success" data-share-platform="whatsapp"><i class="fab fa-whatsapp"></i></a>
                                     <a href="#" class="btn btn-primary" data-share-platform="facebook"><i class="fab fa-facebook-f"></i></a>
-                                    <a href="#" class="btn btn-info" data-share-platform="twitter"><i class="fab fa-twitter"></i></a>
-                                    <a href="#" class="btn btn-secondary" data-share-platform="linkedin"><i class="fab fa-linkedin-in"></i></a>
+                                    <a href="#" class="btn btn-primary" data-share-platform="linkedin"><i class="fab fa-linkedin-in"></i></a>
+                                    <a href="#" class="btn btn-danger" data-share-platform="instagram"><i class="fab fa-instagram"></i></a>
                                     <button class="btn btn-secondary" data-share-platform="copy"><i class="fas fa-link"></i></button>
                                 </div>
                                 <div class="lead">${htmlTextoModificado}</div>

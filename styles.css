@@ -48,6 +48,32 @@
     --font-body: 'Lato', sans-serif;
 }
 
+/* Estilos para a formatação de texto do Trix Editor */
+.trix-content {
+    line-height: 1.6;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
+.trix-content p {
+    margin-bottom: 1.5rem;
+}
+
+.trix-content strong {
+    font-weight: bold; /* Garante que o negrito funcione */
+}
+
+/* Adicione outros estilos para listas, links, etc., se necessário */
+.trix-content ul,
+.trix-content ol {
+    margin-bottom: 1rem;
+}
+
+/* Corrigir o negrito caso o trix.css não seja suficiente */
+trix-editor strong {
+    font-weight: bold;
+}
+
 li {
     color: var(--text-color-list);
 }
@@ -563,71 +589,73 @@ trix-editor trix-attachment .attachment__caption {
     display: none !important;
 }
 
-/*
- * =======================================================
- * Estilos para a grade de imagens (LADO A LADO)
- * =======================================================
- */
+.trix-content {
+    /* Garante que o texto tenha o estilo correto */
+    line-height: 1.6;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
 
-/* Container que agrupa as imagens para criar o layout de grade */
+/* Garante que o negrito funcione corretamente */
+.trix-content strong {
+    font-weight: bold;
+}
+
+
+
+/* Estilos para a galeria de imagens */
 .attachment-gallery {
     display: flex;
-    flex-wrap: wrap; /* Essencial para que as imagens quebrem para a próxima linha */
-    justify-content: center; /* Centraliza o grupo de imagens horizontalmente */
-    gap: 1rem; /* Espaçamento de 16px entre as imagens */
-    margin: 2rem 0; /* Margem acima e abaixo da grade */
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0;
 }
 
-/* Estilos para cada item (imagem) dentro da grade */
+/* Estilos para cada imagem dentro da galeria */
 .attachment-gallery .attachment {
-    /* Define uma largura e altura fixas para o formato quadrado */
     flex-basis: calc(33.333% - 1rem);
-    max-width: 300px; /* Mantém um limite de largura */
-    aspect-ratio: 1 / 1; /* A forma moderna de garantir a proporção quadrada */
+    max-width: 300px;
+    aspect-ratio: 1 / 1;
     overflow: hidden;
     border-radius: 5px;
-    
-    /* Permite que o item se ajuste em telas menores */
     flex-grow: 1;
     flex-shrink: 1;
-    cursor: pointer; /* Indica que a imagem é clicável */
-    transition: transform 0.3s ease-in-out; /* Animação suave para o hover */
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
 }
 
-/* Efeito de zoom ao passar o mouse */
 .attachment-gallery .attachment:hover {
-    transform: scale(1.05); 
+    transform: scale(1.05);
 }
 
-/* Garante que a imagem preencha completamente seu contêiner sem distorção */
 .attachment-gallery .attachment img {
     width: 100%;
     height: 100%;
     display: block;
-    object-fit: cover; /* A propriedade mágica que preenche o espaço sem distorcer, cortando as bordas */
+    object-fit: cover;
 }
 
 /*
  * =======================================================
- * Estilos para imagens que não estão em uma grade (soltas)
+ * NOVO: Estilos para uma única imagem no conteúdo
  * =======================================================
  */
-.trix-content figure:not(.attachment-gallery figure),
-.lead figure:not(.attachment-gallery figure) {
+/* Seleciona o elemento 'figure' dentro de 'trix-content' se ele for o único filho */
+.trix-content > figure:only-child {
     display: block;
-    margin: 1.5rem auto; /* Centraliza a imagem e adiciona margens */
+    margin: 1.5rem auto; /* Centraliza a imagem */
     max-width: 100%;
-    max-height: 500px; /* Altura máxima para imagens soltas */
-    width: auto;
-    object-fit: contain; /* Ajusta a imagem inteira sem cortar */
-    border-radius: 5px;
+    text-align: center;
 }
 
-.trix-content figure:not(.attachment-gallery figure) img,
-.lead figure:not(.attachment-gallery figure) img {
-    max-width: 100%;
+.trix-content > figure:only-child img {
+    width: auto;
     height: auto;
+    max-width: 100%; /* Permite que a imagem se ajuste à largura do contêiner */
+    max-height: 500px;
     object-fit: contain;
+    border-radius: 5px;
 }
 
 /*
@@ -693,6 +721,14 @@ trix-editor {
 /* Esconde o nome e o tamanho dos arquivos anexados no Trix Editor */
 .trix-content .attachment .attachment__caption {
   display: none;
+}
+
+.lead h1{
+    font-size: 1.55rem !important;
+}
+
+.lead div strong {
+    font-weight: bold;
 }
 
 
