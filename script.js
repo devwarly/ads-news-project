@@ -396,7 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </button>
                         <div class="row">
                             <div class="col-12 text-center">
-                                ${noticia.imagem ? `<img src="http://localhost:8080${noticia.imagem}" class="img-fluid rounded mb-4" alt="Imagem da notícia">` : ''}
+                                ${noticia.imagem ? `<img src="http://localhost:8080${noticia.imagem}" class="img-fluid rounded mb-4" alt="Imagem da notícia" >` : ''}
                             </div>
                             <div class="col-12">
                                 <h1 class="display-4">${noticia.titulo}</h1>

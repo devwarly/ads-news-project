@@ -51,7 +51,7 @@
     </header>
 
     <main class="container my-5">
-        <div id="login-container" class="row justify-content-center">
+        <div id="login-container" style="max-width: 600px; margin-left: auto; margin-right: auto;" class="row justify-content-center">
             <div class="col-md-6 card p-4">
                 <h2 class="text-center mb-4">Login de Admin</h2>
                 <form id="login-form">
@@ -68,7 +68,7 @@
             </div>
             <div style="text-align: center; margin-top: 40px;">
                 <h2>Acesso restrito a administradores do site</h2>
-                <p>Essa funcionalidade so pode ser usada por administradores legais do site e com a devida aoutorização.</p>
+                <p>Essa funcionalidade só pode ser usada por administradores legais do site e com a devida autorização.</p>
             </div>
         </div>
 
@@ -95,7 +95,7 @@
                             <div class="mb-3">
                                 <label for="texto-noticia" class="form-label">Conteúdo da Notícia</label>
                                 <input id="texto-noticia-input" type="hidden" name="content">
-                                <trix-editor input="texto-noticia-input"></trix-editor>
+                                <trix-editor  placeholder="Digite aqui..."  input="texto-noticia-input"></trix-editor>
                             </div>
                             <button type="submit" class="btn btn-primary w-100" id="btn-submit-news">Adicionar Notícia</button>
                         </form>
