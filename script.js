@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         "color": color,
                         "opacity": 0.4,
                         "width": 1
-                        },
+                    },
                     "move": {
                         "enable": true,
                         "speed": 2,
@@ -139,10 +139,86 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggleBtn.addEventListener('click', toggleTheme);
     }
     loadTheme();
+    
+    // --- Funções para mensagens personalizadas (NOVO e CORRIGIDO) ---
+    const showMessage = (message, type = 'info', duration = 5000) => {
+        let wrapper = document.getElementById('message-wrapper');
+        if (!wrapper) {
+            wrapper = document.createElement('div');
+            wrapper.id = 'message-wrapper';
+            document.body.appendChild(wrapper);
+        }
 
+        const messageContainer = document.createElement('div');
+        messageContainer.classList.add('custom-message', `custom-message--${type}`);
+        messageContainer.textContent = message;
+        
+        wrapper.innerHTML = '';
+        wrapper.appendChild(messageContainer);
+
+        messageContainer.classList.add('show');
+        
+        setTimeout(() => {
+            messageContainer.classList.remove('show');
+            messageContainer.classList.add('hide');
+        }, duration);
+
+        messageContainer.addEventListener('animationend', (event) => {
+            if (event.animationName === 'slide-out-up') {
+                messageContainer.remove();
+                if (wrapper.children.length === 0) {
+                    wrapper.remove();
+                }
+            }
+        });
+    };
+
+    // --- NOVO: Função para exibir modal de confirmação ---
+    const showConfirmation = (message) => {
+        return new Promise((resolve) => {
+            const modalOverlay = document.getElementById('confirmation-modal');
+            const confirmationMessage = document.getElementById('confirmation-message');
+            const confirmButton = document.getElementById('confirm-button');
+            const cancelButton = document.getElementById('cancel-button');
+
+            confirmationMessage.textContent = message;
+            modalOverlay.classList.remove('d-none');
+            // Timeout para dar tempo de aplicar a classe de visibilidade
+            setTimeout(() => modalOverlay.classList.add('visible'), 10);
+
+            const handleConfirm = () => {
+                modalOverlay.classList.remove('visible');
+                setTimeout(() => modalOverlay.classList.add('d-none'), 300);
+                removeListeners();
+                resolve(true);
+            };
+
+            const handleCancel = () => {
+                modalOverlay.classList.remove('visible');
+                setTimeout(() => modalOverlay.classList.add('d-none'), 300);
+                removeListeners();
+                resolve(false);
+            };
+
+            const removeListeners = () => {
+                confirmButton.removeEventListener('click', handleConfirm);
+                cancelButton.removeEventListener('click', handleCancel);
+                modalOverlay.removeEventListener('click', handleOverlayClick);
+            };
+
+            const handleOverlayClick = (e) => {
+                if (e.target === modalOverlay) {
+                    handleCancel();
+                }
+            };
+            
+            confirmButton.addEventListener('click', handleConfirm);
+            cancelButton.addEventListener('click', handleCancel);
+            modalOverlay.addEventListener('click', handleOverlayClick);
+        });
+    };
 
     // --- Funções de Comunicação com o Backend ---
-
     const carregarNoticiasDoBackend = async () => {
         try {
             const response = await fetch('http://localhost:8080/api/noticias');
@@ -150,11 +226,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Erro ao buscar notícias do servidor.');
             }
             const noticias = await response.json();
-            
             return noticias.sort((a, b) => new Date(b.data) - new Date(a.data));
-            
         } catch (error) {
             console.error('Erro na requisição GET de notícias:', error);
+            showMessage('Não foi possível carregar as notícias. Tente novamente mais tarde.', 'error');
             return [];
         }
     };
@@ -169,25 +244,30 @@ document.addEventListener('DOMContentLoaded', () => {
             return noticia;
         } catch (error) {
             console.error('Erro na requisição GET de uma notícia:', error);
+            showMessage('Não foi possível carregar a notícia. Verifique o ID.', 'error');
             return null;
         }
     };
 
+    // FUNÇÃO EXCLUIR NOTÍCIA CORRIGIDA
     const excluirNoticia = async (id) => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/noticias/${id}`, {
-                method: 'DELETE',
-            });
-            if (response.ok) {
-                alert('Notícia excluída com sucesso!');
-                const noticiasAtualizadas = await carregarNoticiasDoBackend();
-                renderizarNoticiasAdmin(noticiasAtualizadas);
-            } else {
-                throw new Error('Falha ao excluir a notícia.');
+        const confirmed = await showConfirmation('Tem certeza que deseja excluir esta notícia?');
+        if (confirmed) {
+            try {
+                const response = await fetch(`http://localhost:8080/api/noticias/${id}`, {
+                    method: 'DELETE',
+                });
+                if (response.ok) {
+                    showMessage('Notícia excluída com sucesso!', 'success');
+                    const noticiasAtualizadas = await carregarNoticiasDoBackend();
+                    renderizarNoticiasAdmin(noticiasAtualizadas);
+                } else {
+                    throw new Error('Falha ao excluir a notícia.');
+                }
+            } catch (error) {
+                console.error('Erro na requisição DELETE:', error);
+                showMessage('Erro ao excluir a notícia.', 'error');
             }
-        } catch (error) {
-            console.error('Erro na requisição DELETE:', error);
-            alert('Erro ao excluir a notícia.');
         }
     };
 
@@ -201,31 +281,35 @@ document.addEventListener('DOMContentLoaded', () => {
             return curriculo;
         } catch (error) {
             console.error('Erro na requisição GET do currículo:', error);
+            showMessage('Não foi possível carregar a grade curricular.', 'error');
             return [];
         }
     };
 
+    // FUNÇÃO EXCLUIR PERÍODO CORRIGIDA
     const excluirPeriodo = async (id) => {
-        try {
-            const response = await fetch(`http://localhost:8080/api/curriculo/${id}`, {
-                method: 'DELETE',
-            });
-            if (response.ok) {
-                alert('Período excluído com sucesso!');
-                const curriculoAtualizado = await carregarCurriculoDoBackend();
-                renderizarCurriculoAdmin(curriculoAtualizado);
-                renderizarTabelaCurriculo(curriculoAtualizado);
-            } else {
-                throw new Error('Falha ao excluir o período.');
+        const confirmed = await showConfirmation('Tem certeza que deseja excluir este período?');
+        if (confirmed) {
+            try {
+                const response = await fetch(`http://localhost:8080/api/curriculo/${id}`, {
+                    method: 'DELETE',
+                });
+                if (response.ok) {
+                    showMessage('Período excluído com sucesso!', 'success');
+                    const curriculoAtualizado = await carregarCurriculoDoBackend();
+                    renderizarCurriculoAdmin(curriculoAtualizado);
+                    renderizarTabelaCurriculo(curriculoAtualizado);
+                } else {
+                    throw new Error('Falha ao excluir o período.');
+                }
+            } catch (error) {
+                console.error('Erro na requisição DELETE de período:', error);
+                showMessage('Erro ao excluir o período.', 'error');
             }
-        } catch (error) {
-            console.error('Erro na requisição DELETE de período:', error);
-            alert('Erro ao excluir o período.');
         }
     };
 
     // --- Funções de Renderização de Conteúdo ---
-
     const renderizarNoticias = (containerId, listaNoticias) => {
         const container = document.getElementById(containerId);
         if (container) {
@@ -276,9 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.delete-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
                     const id = e.target.getAttribute('data-id');
-                    if (confirm('Tem certeza que deseja excluir esta notícia?')) {
-                        excluirNoticia(id);
-                    }
+                    excluirNoticia(id);
                 });
             });
             document.querySelectorAll('.edit-news-btn').forEach(button => {
@@ -331,9 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.delete-periodo-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
                     const id = e.target.getAttribute('data-id');
-                    if (confirm('Tem certeza que deseja excluir este período?')) {
-                        excluirPeriodo(id);
-                    }
+                    excluirPeriodo(id);
                 });
             });
             document.querySelectorAll('.edit-periodo-btn').forEach(button => {
@@ -438,15 +518,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (isMobile) {
                         navigator.clipboard.writeText(noticiaUrl)
                             .then(() => {
-                                alert('Link copiado! Cole-o na sua postagem ou Stories no Instagram.');
+                                showMessage('Link copiado! Cole-o na sua postagem ou Stories no Instagram.', 'info');
                                 window.open('https://www.instagram.com', '_blank', 'noopener,noreferrer');
                             })
                             .catch(err => {
                                 console.error('Falha ao copiar o link:', err);
-                                alert('Erro ao copiar o link. Por favor, tente novamente.');
+                                showMessage('Erro ao copiar o link. Por favor, tente novamente.', 'error');
                             });
                     } else {
-                        alert('Para compartilhar no Instagram, copie o link e cole na sua postagem ou Stories.');
+                        showMessage('Para compartilhar no Instagram, copie o link e cole na sua postagem ou Stories.', 'info');
                         navigator.clipboard.writeText(noticiaUrl)
                             .catch(err => console.error('Falha ao copiar o link:', err));
                     }
@@ -455,11 +535,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (navigator.clipboard && window.isSecureContext) {
                         navigator.clipboard.writeText(noticiaUrl)
                             .then(() => {
-                                alert('Link copiado para a área de transferência!');
+                                showMessage('Link copiado para a área de transferência!', 'success');
                             })
                             .catch(err => {
                                 console.error('Falha ao copiar o link:', err);
-                                alert('Erro ao copiar o link.');
+                                showMessage('Erro ao copiar o link.', 'error');
                             });
                     } else {
                         const textarea = document.createElement('textarea');
@@ -470,10 +550,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         textarea.select();
                         try {
                             const successful = document.execCommand('copy');
-                            alert(successful ? 'Link copiado para a área de transferência!' : 'Erro ao copiar o link.');
+                            showMessage(successful ? 'Link copiado para a área de transferência!' : 'Erro ao copiar o link.', successful ? 'success' : 'error');
                         } catch (err) {
                             console.error('Falha ao copiar o link (execCommand):', err);
-                            alert('Erro ao copiar o link.');
+                            showMessage('Erro ao copiar o link.', 'error');
                         }
                         document.body.removeChild(textarea);
                     }
@@ -524,6 +604,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         figures[0].classList.add('single-image');
                     }
 
+                    const trixImages = tempDiv.querySelectorAll('img');
+                    trixImages.forEach(img => {
+                        const url = img.getAttribute('src');
+                        if (url && !url.startsWith('http')) {
+                            img.src = `http://localhost:8080${url}`;
+                        }
+                    });
+
                     const htmlTextoModificado = tempDiv.innerHTML;
 
                     container.innerHTML = `
@@ -551,7 +639,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     `;
                     
-                    const galleryContainer = document.querySelector('.lead'); 
+                    const galleryContainer = document.querySelector('.lead');
                     if (galleryContainer) {
                         galleryContainer.addEventListener('click', (event) => {
                             const target = event.target;
@@ -561,12 +649,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         });
                     }
-                    
+
                     carregarNoticiasDoBackend().then(todasNoticias => {
                         const noticiasRelacionadas = todasNoticias.filter(n => n.id != noticiaId).slice(0, 3);
                         renderizarNoticias('noticias-relacionadas-container', noticiasRelacionadas);
                     });
-                    
+
                     setupShareButtons(noticia);
                 } else {
                     container.innerHTML = `<div class="alert alert-danger text-center">Notícia não encontrada.</div>`;
@@ -599,7 +687,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (loginContainer && adminPanel) {
                     loginContainer.classList.add('d-none');
                     adminPanel.classList.remove('d-none');
-                    
+                    showMessage('Login realizado com sucesso!', 'success');
+
                     const noticiasParaAdmin = await carregarNoticiasDoBackend();
                     renderizarNoticiasAdmin(noticiasParaAdmin);
 
@@ -607,7 +696,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderizarCurriculoAdmin(curriculoParaAdmin);
                 }
             } else {
-                alert('Credenciais inválidas!');
+                showMessage('Credenciais inválidas!', 'error');
             }
         });
     }
@@ -639,7 +728,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     imagemUrl = uploadData.url;
                 } catch (error) {
                     console.error('Erro no upload da imagem:', error);
-                    alert(`Erro ao fazer o upload da imagem: ${error.message}`);
+                    showMessage(`Erro ao fazer o upload da imagem: ${error.message}`, 'error');
                     return;
                 }
             } else if (noticiaId) {
@@ -658,7 +747,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(novaNoticia),
                 });
                 if (response.ok) {
-                    alert('Notícia salva com sucesso!');
+                    showMessage('Notícia salva com sucesso!', 'success');
                     resetNewsForm();
                     const noticiasAtualizadas = await carregarNoticiasDoBackend();
                     renderizarNoticiasAdmin(noticiasAtualizadas);
@@ -667,7 +756,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(errorBody.error || 'Falha ao adicionar a notícia.');
                 }
             } catch (error) {
-                alert(`Erro ao adicionar notícia: ${error.message}`);
+                showMessage(`Erro ao adicionar notícia: ${error.message}`, 'error');
                 console.error('Erro na requisição:', error);
             }
         });
@@ -695,7 +784,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(novoPeriodo),
                 });
                 if (response.ok) {
-                    alert('Grade Curricular salva com sucesso!');
+                    showMessage('Grade Curricular salva com sucesso!', 'success');
                     curriculoForm.reset();
                     document.getElementById('periodo-id').value = '';
                     btnSubmit.textContent = 'Adicionar Período';
@@ -707,7 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(errorBody.error || 'Falha ao salvar a grade curricular.');
                 }
             } catch (error) {
-                alert(`Erro ao salvar grade: ${error.message}`);
+                showMessage(`Erro ao salvar grade: ${error.message}`, 'error');
                 console.error('Erro na requisição:', error);
             }
         });
@@ -762,29 +851,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
             } catch (error) {
                 console.error('Erro ao fazer upload do anexo:', error);
-                alert(`Erro ao anexar a imagem: ${error.message}`);
+                showMessage(`Erro ao anexar a imagem: ${error.message}`, 'error');
                 attachment.remove();
             }
         }
     };
-
-    // --- Nova lógica para aplicar estilos dinâmicos ---
-    const trixEditor = document.querySelector('trix-editor');
-    if (trixEditor) {
-        trixEditor.addEventListener('trix-change', (event) => {
-            const editorElement = event.target;
-            const figures = editorElement.querySelectorAll('figure');
-
-            figures.forEach(figure => {
-                figure.classList.remove('single-image');
-            });
-            
-            if (figures.length === 1 && !figures[0].classList.contains('attachment-gallery')) {
-                figures[0].classList.add('single-image');
-            }
-        });
-    }
-
+    
     inicializarTrixUploader();
     
     // Funções do Modal

@@ -14,6 +14,7 @@
 
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
     <header class="header fixed-top">
         <nav class="navbar navbar-expand-lg">
@@ -72,9 +73,19 @@
         </div>
     </footer>
 
+    <div id="confirmation-modal" class="confirmation-modal-overlay d-none">
+        <div class="confirmation-modal-content">
+            <p id="confirmation-message"></p>
+            <div class="confirmation-modal-buttons">
+                <button id="confirm-button" class="btn btn-danger">Excluir</button>
+                <button id="cancel-button" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
-    </body>
+</body>
 
 </html>

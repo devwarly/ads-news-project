@@ -48,6 +48,155 @@
     --font-body: 'Lato', sans-serif;
 }
 
+/* Estilos para o Modal de Confirmação */
+.confirmation-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    transition: opacity 0.3s ease-in-out;
+    opacity: 0;
+}
+
+.confirmation-modal-content {
+    background-color: var(--card-bg);
+    color: var(--text-color-main);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    transform: scale(0.9);
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Estado visível do modal */
+.confirmation-modal-overlay.visible {
+    opacity: 1;
+}
+
+.confirmation-modal-overlay.visible .confirmation-modal-content {
+    transform: scale(1);
+}
+
+.confirmation-modal-content p {
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+}
+
+.confirmation-modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.confirmation-modal-buttons .btn {
+    min-width: 100px;
+}
+
+/* Container que agrupa a mensagem (apenas uma por vez) */
+#message-wrapper {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%); /* Centraliza horizontalmente */
+    z-index: 9999;
+}
+
+/* Estilo básico da mensagem */
+.custom-message {
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    font-weight: bold;
+    font-size: 1rem;
+    
+    /* Posição inicial: escondida no topo */
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+/* Animação para a mensagem aparecer */
+@keyframes slide-in-down {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Animação para a mensagem desaparecer */
+@keyframes slide-out-up {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+}
+
+/* Classes para disparar as animações */
+.custom-message.show {
+    animation: slide-in-down 0.5s forwards; /* 'forwards' mantém o estado final da animação */
+}
+
+.custom-message.hide {
+    animation: slide-out-up 0.5s forwards;
+}
+
+/* Cores de fundo para os diferentes tipos de mensagem */
+.custom-message--success {
+    background-color: #28a745; /* Verde para sucesso */
+}
+
+.custom-message--error {
+    background-color: #dc3545; /* Vermelho para erro */
+}
+
+.custom-message--info {
+    background-color: #17a2b8; /* Azul para informação */
+}
+
+/* Estilo para a mensagem aparecer */
+#message-wrapper .custom-message {
+    /* Desliza para a posição visível */
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Estilo para a mensagem desaparecer (ativado pelo JavaScript) */
+.custom-message--hide {
+    /* Desliza para fora da tela, para cima */
+    transform: translateY(-100%);
+    opacity: 0;
+}
+
+/* Cores de fundo para os diferentes tipos de mensagem */
+.custom-message--success {
+    background-color: #28a745; /* Verde para sucesso */
+}
+
+.custom-message--error {
+    background-color: #dc3545; /* Vermelho para erro */
+}
+
+.custom-message--info {
+    background-color: #17a2b8; /* Azul para informação */
+}
+
 /* Estilos para a formatação de texto do Trix Editor */
 .trix-content {
     line-height: 1.6;
@@ -596,16 +745,27 @@ trix-editor trix-attachment .attachment__caption {
     color: var(--text-color);
 }
 
+/*
+ * =======================================================
+ * Estilos para o conteúdo do Trix Editor
+ * =======================================================
+ */
+
+/* Garante que o texto tenha o estilo correto */
+.trix-content {
+    line-height: 1.6;
+    font-size: 1.1rem;
+    color: var(--text-color);
+}
+
 /* Garante que o negrito funcione corretamente */
 .trix-content strong {
     font-weight: bold;
 }
 
-
-
-/* Estilos para a galeria de imagens */
+/* Estilos para a galeria de imagens (múltiplas imagens) */
 .attachment-gallery {
-    display: flex;
+    display: flex; /* Essencial para que as imagens fiquem lado a lado */
     flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
@@ -638,25 +798,40 @@ trix-editor trix-attachment .attachment__caption {
 
 /*
  * =======================================================
- * NOVO: Estilos para uma única imagem no conteúdo
+ * Estilos para uma única imagem no conteúdo
  * =======================================================
  */
-/* Seleciona o elemento 'figure' dentro de 'trix-content' se ele for o único filho */
-.trix-content > figure:only-child {
+/* Seleciona o elemento 'figure' dentro de 'trix-content' se ele for o único filho
+   e NÃO for parte de uma galeria. */
+.trix-content figure:only-child {
     display: block;
-    margin: 1.5rem auto; /* Centraliza a imagem */
+    margin: 1.5rem auto;
     max-width: 100%;
     text-align: center;
 }
 
-.trix-content > figure:only-child img {
+.trix-content figure:only-child img {
     width: auto;
     height: auto;
-    max-width: 100%; /* Permite que a imagem se ajuste à largura do contêiner */
+    max-width: 100%;
     max-height: 500px;
     object-fit: contain;
     border-radius: 5px;
 }
+
+/* Esconde o nome e o tamanho dos arquivos anexados */
+.trix-content .attachment .attachment__caption {
+    display: none;
+}
+
+trix-editor .attachment-gallery .attachment__caption {
+    display: none !important;
+}
+
+trix-editor trix-attachment .attachment__caption {
+    display: none !important;
+}
+
 
 /*
  * =======================================================
@@ -669,11 +844,11 @@ trix-editor trix-attachment .attachment__caption {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.8); /* Fundo escuro semi-transparente */
+    background-color: rgba(0, 0, 0, 0.8);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000; /* Garante que o modal fique acima de outros elementos */
+    z-index: 1000;
 }
 
 .modal-container {
@@ -682,8 +857,8 @@ trix-editor trix-attachment .attachment__caption {
     padding: 15px;
     max-width: 90%;
     max-height: 90%;
-    overflow: auto; /* Adiciona barra de rolagem se a imagem for muito grande */
-    position: relative; /* Para posicionar o botão de fechar */
+    overflow: auto;
+    position: relative;
 }
 
 .modal-image {
@@ -708,7 +883,6 @@ trix-editor trix-attachment .attachment__caption {
 .modal-close-button:hover {
     color: #333;
 }
-
 /* Garante uma altura mínima para o Trix Editor e permite a rolagem */
 trix-editor {
     min-height: 200px; /* Altura mínima para o editor */
@@ -724,7 +898,7 @@ trix-editor {
 }
 
 .lead h1{
-    font-size: 1.55rem !important;
+    font-size: 1.50rem !important;
 }
 
 .lead div strong {

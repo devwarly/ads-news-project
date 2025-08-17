@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,9 +11,10 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" type="image/x-icon" href="/caminho-para-seu-icone.ico">
 </head>
+
 <body>
 
-     <header class="header">
+    <header class="header">
         <nav class="navbar navbar-expand-lg">
             <div class="container">
                 <a class="navbar-brand" href="index.html">
@@ -51,7 +53,8 @@
     </header>
 
     <main class="container my-5">
-        <div id="login-container" style="max-width: 600px; margin-left: auto; margin-right: auto;" class="row justify-content-center">
+        <div id="login-container" style="max-width: 600px; margin-left: auto; margin-right: auto;"
+            class="row justify-content-center">
             <div class="col-md-6 card p-4">
                 <h2 class="text-center mb-4">Login de Admin</h2>
                 <form id="login-form">
@@ -68,16 +71,17 @@
             </div>
             <div style="text-align: center; margin-top: 40px;">
                 <h2>Acesso restrito a administradores do site</h2>
-                <p>Essa funcionalidade só pode ser usada por administradores legais do site e com a devida autorização.</p>
+                <p>Essa funcionalidade só pode ser usada por administradores legais do site e com a devida autorização.
+                </p>
             </div>
         </div>
 
         <div id="admin-panel" class="d-none">
-            
+
             <h1 class="text-center mb-5">Painel de Administração</h1>
 
             <div class="row">
-                
+
                 <div class="col-lg-6">
                     <div class="card p-4 mb-5">
                         <h2 class="mb-4">Adicionar/Editar Notícia</h2>
@@ -95,16 +99,18 @@
                             <div class="mb-3">
                                 <label for="texto-noticia" class="form-label">Conteúdo da Notícia</label>
                                 <input id="texto-noticia-input" type="hidden" name="content">
-                                <trix-editor  placeholder="Digite aqui..."  input="texto-noticia-input" data-trix-attachments-disabled ></trix-editor>
+                                <trix-editor placeholder="Digite aqui..." input="texto-noticia-input"
+                                    data-trix-attachments-disabled></trix-editor>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100" id="btn-submit-news">Adicionar Notícia</button>
+                            <button type="submit" class="btn btn-primary w-100" id="btn-submit-news">Adicionar
+                                Notícia</button>
                         </form>
                     </div>
 
                     <div class="card p-4">
                         <h2 class="mb-4">Notícias Existentes</h2>
                         <div id="noticias-list-admin">
-                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -115,26 +121,29 @@
                             <input type="hidden" id="periodo-id">
                             <div class="mb-3">
                                 <label for="periodo-nome" class="form-label">Nome do Semestre (Ex: 1º Semestre)</label>
-                                <input type="text" class="form-control" id="periodo-nome" placeholder="Ex: 1º Semestre" required>
+                                <input type="text" class="form-control" id="periodo-nome" placeholder="Ex: 1º Semestre"
+                                    required>
                             </div>
                             <div class="mb-3">
                                 <label for="periodo-disciplinas" class="form-label">Disciplinas</label>
                                 <div id="curriculo-toolbar" class="btn-group mb-2" role="group">
-                                    <button type="button" class="btn btn-outline-primary btn-sm" data-format="list" title="Adicionar Item de Lista">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" data-format="list"
+                                        title="Adicionar Item de Lista">
                                         <i class="fas fa-list-ul"></i>
                                     </button>
                                 </div>
                                 <textarea class="form-control" id="periodo-disciplinas" rows="3" required></textarea>
                                 <p class="form-text text-muted">Cada disciplina deve estar em uma nova linha.</p>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 mt-3" id="btn-submit-curriculo">Adicionar Período</button>
+                            <button type="submit" class="btn btn-primary w-100 mt-3" id="btn-submit-curriculo">Adicionar
+                                Período</button>
                         </form>
                     </div>
 
                     <div class="card p-4">
                         <h3 class="mb-3">Períodos Cadastrados</h3>
                         <div id="curriculo-list-admin">
-                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -151,15 +160,18 @@
                 <div class="col-md-4 mb-3">
                     <h4 class="mb-3">Siga-nos</h4>
                     <div class="footer-socials">
-                        <a href="https://www.instagram.com/adsfasec?igsh=N3ByODZ1YzZ4c3V1" target="_blank"><i class="fab fa-instagram"></i></a>
-                        <a href="https://www.tiktok.com/@dev.fasec?_t=ZM-8ytJT184rUW&_r=1" target="_blank"><i class="fab fa-tiktok"></i></a>
+                        <a href="https://www.instagram.com/adsfasec?igsh=N3ByODZ1YzZ4c3V1" target="_blank"><i
+                                class="fab fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@dev.fasec?_t=ZM-8ytJT184rUW&_r=1" target="_blank"><i
+                                class="fab fa-tiktok"></i></a>
                         <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
                     </div>
                 </div>
                 <div class="col-md-4 mb-3">
                     <h4 class="mb-3">Contato</h4>
                     <p style="text-decoration: underline;">
-                        <a  href="https://mail.google.com/mail/?view=cm&fs=1&to=thesuport.ads@gmail.com" style="color: inherit;">
+                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=thesuport.ads@gmail.com"
+                            style="color: inherit;">
                             <i class="fas fa-envelope me-2"></i> suporte@ads.com.br
                         </a>
                     </p>
@@ -172,10 +184,21 @@
             </p>
         </div>
     </footer>
-    
+
+    <div id="confirmation-modal" class="confirmation-modal-overlay d-none">
+        <div class="confirmation-modal-content">
+            <p id="confirmation-message"></p>
+            <div class="confirmation-modal-buttons">
+                <button id="confirm-button" class="btn btn-danger">Excluir</button>
+                <button id="cancel-button" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.min.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>
