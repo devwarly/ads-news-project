@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadTheme();
     
-    const showMessage = (message, type = 'info', duration = 5000) => {
+    const showMessage = (message, type = 'info', duration = 2500) => {
         let wrapper = document.getElementById('message-wrapper');
         if (!wrapper) {
             wrapper = document.createElement('div');
@@ -344,8 +344,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="col-md-4 mb-4">
                         <div class="card h-100">
                             ${imagemHtml}
+                            
                             <div class="card-body">
                                 <h5 class="card-title">${noticia.titulo}</h5>
+                                <p class="text-muted text-date" id="text-muted">Publicado em: ${new Date(noticia.data).toLocaleDateString()}</p>
                                 <p class="card-text">${textoCurto}</p>
                                 <a href="${pathPrefix}noticia.html?id=${noticia.id}" class="btn btn-primary mt-2">Ler mais</a>
                             </div>
