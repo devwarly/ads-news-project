@@ -18,16 +18,17 @@
     --text-color-list: #212529;
     --particles-color: #0d47a1;
     --footer: #212529;
+    --tougle-btn: #9e9e9e;
 }
 
 /* --- Variáveis de Cores: Tema Escuro --- */
 .dark-theme {
-    --main-bg: #121212;
-    --hero-bg: #000000;
-    --primary-color: #08bdab;
+    --main-bg: #17181a;
+    --hero-bg: #010b14;
+    --primary-color: #37AA9C;
     --accent-color: #03dac6;
     --navbarr: #03dac52f;
-    --card-bg: #1e1e1e;
+    --card-bg: rgb(20, 20, 20);
     --border-color: #333333;
     --shadow-color: rgba(0, 0, 0, 0.4);
 
@@ -37,7 +38,8 @@
     --text-color-card: #e0e0e0;
     --text-color-list: #e0e0e0;
     --particles-color: #03dac6;
-    --footer: #202020;
+    --footer: #0c0c0c;
+    --tougle-btn: #9e9e9e;
 }
 
 /* --- Fontes Globais --- */
@@ -514,7 +516,7 @@ a:hover {
 .btn-primary {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
-    color: var(--text-light);
+    color: #fff;
     font-weight: 700;
     transition: all 0.3s ease;
 }
@@ -522,7 +524,7 @@ a:hover {
 .btn-primary:hover {
     background-color: var(--accent-color);
     border-color: var(--accent-color);
-    color: var(--text-light);
+    color: #d4d4d4;
 }
 
 .btn-outline-primary {
@@ -644,7 +646,7 @@ trix-editor a {
     height: 40px;
     border-radius: 50%;
     border: none;
-    background-color: var(--border-color);
+    background-color: var(--tougle-btn);
     color: var(--text-dark);
     display: flex;
     align-items: center;
@@ -660,7 +662,7 @@ trix-editor a {
 }
 
 .dark-theme .theme-toggle-btn {
-    background-color: var(--accent-color);
+    background-color: #245f66;
     color: var(--text-light);
 }
 
@@ -830,6 +832,22 @@ trix-editor trix-attachment .attachment__caption {
     display: none !important;
 }
 
+.attachment img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-height: 400px;
+    height: auto;
+    border-radius: 5px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Adiciona um efeito de zoom ao passar o mouse */
+.attachment:hover {
+    transform: scale(1.03);
+}
+
 
 /*
  * =======================================================
@@ -916,10 +934,36 @@ trix-editor {
     font-weight: bold;
 }
 
+#noticias-container {
+    display: flex;
+    justify-content: center;
+}
+
+.text-date {
+  color: var(--text-color-muted) !important;
+  font-size: 1rem;
+}
+
 /* --- Responsividade --- */
 @media (max-width: 992px) {
     .hero-section h1 {
         font-size: 3rem;
+    }
+
+    .attachment img {
+        display: block;
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        height: auto;
+        border-radius: 5px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    /* Adiciona um efeito de zoom ao passar o mouse */
+    .attachment:hover {
+        transform: scale(1.03);
     }
 
 }
@@ -930,7 +974,7 @@ trix-editor {
     }
 
     .img-fluid {
-        max-height: 100px;
+        max-height: 300px;
         width: auto;
         object-fit: contain;
     }
