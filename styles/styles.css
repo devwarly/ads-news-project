@@ -944,6 +944,78 @@ trix-editor {
   font-size: 1rem;
 }
 
+.turma-curiosidades-container {
+    text-align: center;
+    background: var(--card-bg);
+    padding: 2em;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px var(--border-color);
+}
+
+.turma-curiosidades-container h1 {
+    color: var(--text-color);
+}
+
+#turma-curiosidades-pergunta {
+    font-size: 1.2em;
+    margin: 1em 0;
+    color: var(--text-color-list);
+}
+
+#turma-curiosidades-resposta {
+    font-size: 1.1em;
+    margin-top: 1em;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.turma-curiosidades-escondida {
+    display: none;
+}
+
+.turma-curiosidades-navegacao {
+    margin: 1em 0;
+}
+
+#turma-curiosidades-anterior,
+#turma-curiosidades-proximo {
+    padding: 8px 16px;
+    margin: 0 5px;
+    font-size: 0.9em;
+    color: #fff;
+    background-color: var(--accent-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#turma-curiosidades-anterior:hover,
+#turma-curiosidades-proximo:hover {
+    background-color: var(--primary-color);
+}
+
+/* Animação para o conteúdo aparecer */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Animação para o conteúdo desaparecer */
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to   { opacity: 0; transform: translateY(-10px); }
+}
+
+/* Aplica a animação no conteúdo da pergunta e resposta */
+.fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.fade-out {
+    animation: fadeOut 0.5s ease-out forwards;
+}
+
 /* --- Responsividade --- */
 @media (max-width: 992px) {
     .hero-section h1 {
