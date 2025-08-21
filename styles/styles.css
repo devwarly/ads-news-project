@@ -48,6 +48,16 @@
     --font-body: 'Lato', sans-serif;
 }
 
+/*Chave de acesso Admin*/
+
+#key-container h2{
+    text-align: center;
+}
+
+#footer-key {
+    margin-top: 220px;
+}
+
 /* Estilos para o Modal de Confirmação */
 .confirmation-modal-overlay {
     position: fixed;
@@ -519,6 +529,7 @@ a:hover {
     color: #fff;
     font-weight: 700;
     transition: all 0.3s ease;
+    margin-top: 20px;
 }
 
 .btn-primary:hover {
@@ -1041,6 +1052,11 @@ trix-editor {
 }
 
 @media (max-width: 768px) {
+
+    #footer-key {
+        margin-top: 100px;
+    }
+
     .hero-section {
         padding: 100px 20px;
     }
