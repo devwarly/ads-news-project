@@ -53,147 +53,93 @@
     </header>
 
     <main class="container my-5">
-    <div id="login-container" style="max-width: 600px; margin-left: auto; margin-right: auto;"
-        class="row justify-content-center">
-        <div class="col-md-6 card p-4">
-            <h2 class="text-center mb-4">Login de Admin</h2>
-            <form id="login-form">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Usuário</label>
-                    <input type="text" class="form-control" id="username" required>
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Senha</label>
-                    <input type="password" class="form-control" id="password" required>
-                </div>
-                <a href="chave_acesso.html">Solicitar acesso de admin</a>
-                <button type="submit" class="btn btn-primary w-100">Entrar</button>
-            </form>
-        </div>
-        <div style="text-align: center; margin-top: 40px;">
-            <h2>Acesso restrito a administradores do site</h2>
-            <p>Essa funcionalidade só pode ser usada por administradores legais do site e com a devida autorização.
-            </p>
-        </div>
-    </div>
+        <div id="admin-panel" class="d-none">
+            <h1 class="text-center mb-5">Painel de Administração</h1>
 
-    <div id="admin-panel" class="d-none">
-
-        <h1 class="text-center mb-5">Painel de Administração</h1>
-
-        <div class="row mb-5">
-            <div class="col-lg-6">
-                <div class="card p-4">
-                    <h2 class="mb-4">Adicionar/Editar Notícia</h2>
-                    <form id="news-form">
-                        <input type="hidden" id="noticia-id">
-                        <div class="mb-3">
-                            <label for="titulo-noticia" class="form-label">Título</label>
-                            <input type="text" class="form-control" id="titulo-noticia" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="imagem-noticia" class="form-label">Imagem de Destaque</label>
-                            <input type="file" class="form-control" id="imagem-noticia" accept="image/*">
-                            <div id="image-preview" class="mt-2"></div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="texto-noticia" class="form-label">Conteúdo da Notícia</label>
-                            <input id="texto-noticia-input" type="hidden" name="content">
-                            <trix-editor placeholder="Digite aqui..." input="texto-noticia-input"
-                                data-trix-attachments-disabled></trix-editor>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100" id="btn-submit-news">Adicionar
-                            Notícia</button>
-                    </form>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <div class="card p-4 h-100">
-                    <h2 class="mb-4">Notícias Existentes</h2>
-                    <div id="noticias-list-admin" class="scrollable-list">
+            <div class="card p-4 mb-5">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <h2 class="m-0">Bem-vindo, <span id="admin-name"></span></h2>
+                    <div class="btn-group mt-3 mt-sm-0" role="group">
+                        <button id="change-password-btn" class="btn btn-sm btn-outline-secondary">Alterar Senha</button>
+                        <button id="delete-account-btn" class="btn btn-sm btn-danger">Excluir Conta</button>
+                        <button id="logout-btn" class="btn btn-danger">Sair</button>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-lg-6">
-                <div class="card p-4 mb-5">
-                    <h2 class="mb-4">Gerenciar Grade Curricular</h2>
-                    <form id="curriculo-form">
-                        <input type="hidden" id="periodo-id">
-                        <div class="mb-3">
-                            <label for="periodo-nome" class="form-label">Nome do Semestre (Ex: 1º Semestre)</label>
-                            <input type="text" class="form-control" id="periodo-nome" placeholder="Ex: 1º Semestre"
-                                required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="periodo-disciplinas" class="form-label">Disciplinas</label>
-                            <div id="curriculo-toolbar" class="btn-group mb-2" role="group">
-                                <button type="button" class="btn btn-outline-primary btn-sm" data-format="list"
-                                    title="Adicionar Item de Lista">
-                                    <i class="fas fa-list-ul"></i>
-                                </button>
+            <div class="row mb-5">
+                <div class="col-lg-6">
+                    <div class="card p-4">
+                        <h2 class="mb-4">Adicionar/Editar Notícia</h2>
+                        <form id="news-form">
+                            <input type="hidden" id="noticia-id">
+                            <div class="mb-3">
+                                <label for="titulo-noticia" class="form-label">Título</label>
+                                <input type="text" class="form-control" id="titulo-noticia" required>
                             </div>
-                            <textarea class="form-control" id="periodo-disciplinas" rows="3" required></textarea>
-                            <p class="form-text text-muted">Cada disciplina deve estar em uma nova linha.</p>
+                            <div class="mb-3">
+                                <label for="imagem-noticia" class="form-label">Imagem de Destaque</label>
+                                <input type="file" class="form-control" id="imagem-noticia" accept="image/*">
+                                <div id="image-preview" class="mt-2"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="texto-noticia" class="form-label">Conteúdo da Notícia</label>
+                                <input id="texto-noticia-input" type="hidden" name="content">
+                                <trix-editor placeholder="Digite aqui..." input="texto-noticia-input"
+                                    data-trix-attachments-disabled></trix-editor>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100" id="btn-submit-news">Adicionar Notícia</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card p-4 h-100">
+                        <h2 class="mb-4">Notícias Existentes</h2>
+                        <div id="noticias-list-admin" class="scrollable-list">
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 mt-3" id="btn-submit-curriculo">Adicionar
-                            Período</button>
-                    </form>
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="card p-4 h-100">
-                    <h3 class="mb-3">Períodos Cadastrados</h3>
-                    <div id="curriculo-list-admin" class="scrollable-list">
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="card p-4 mb-5">
+                        <h2 class="mb-4">Gerenciar Grade Curricular</h2>
+                        <form id="curriculo-form">
+                            <input type="hidden" id="periodo-id">
+                            <div class="mb-3">
+                                <label for="periodo-nome" class="form-label">Nome do Semestre (Ex: 1º Semestre)</label>
+                                <input type="text" class="form-control" id="periodo-nome" placeholder="Ex: 1º Semestre"
+                                    required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="periodo-disciplinas" class="form-label">Disciplinas</label>
+                                <div id="curriculo-toolbar" class="btn-group mb-2" role="group">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" data-format="list"
+                                        title="Adicionar Item de Lista">
+                                        <i class="fas fa-list-ul"></i>
+                                    </button>
+                                </div>
+                                <textarea class="form-control" id="periodo-disciplinas" rows="3" required></textarea>
+                                <p class="form-text text-muted">Cada disciplina deve estar em uma nova linha.</p>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 mt-3" id="btn-submit-curriculo">Adicionar Período</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card p-4 h-100">
+                        <h3 class="mb-3">Períodos Cadastrados</h3>
+                        <div id="curriculo-list-admin" class="scrollable-list">
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-
-    </div>
-</main>
+    </main>
 
     <footer class="footer">
-        <div class="container text-center text-md-start">
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <h4 class="mb-3">ADS Notícias</h4>
-                    <p>O seu portal de informações sobre o curso de Análise e Desenvolvimento de Sistemas.</p>
-                    <a style="text-decoration: underline;" href="termos_de_uso.html">Termos de uso</a>
-                    <a href="sobre_o_site.html"
-                        style="font-size: 1rem; color: var(--text-color-muted); text-decoration: none;">
-                        Informações sobre o Site
-                    </a>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <h4 class="mb-3">Siga-nos</h4>
-                    <div class="footer-socials">
-                        <a href="https://www.instagram.com/adsfasec?igsh=N3ByODZ1YzZ4c3V1" target="_blank"><i
-                                class="fab fa-instagram"></i></a>
-                        <a href="https://www.tiktok.com/@dev.fasec?_t=ZM-8ytJT184rUW&_r=1" target="_blank"><i
-                                class="fab fa-tiktok"></i></a>
-                        <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <h4 class="mb-3">Contato</h4>
-                    <p style="text-decoration: underline;">
-                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=thesuport.ads@gmail.com"
-                            style="color: inherit;">
-                            <i class="fas fa-envelope me-2"></i> thesuport.ads@gmail.com
-                        </a>
-                    </p>
-                    <p><i class="fas fa-map-marker-alt me-2"></i> Rua de Pedestres, 403 Norte, FASEC - Palmas</p>
-                </div>
-            </div>
-            <hr class="mt-4 mb-3" style="border-color: rgba(255, 255, 255, 0.2);">
-            <p class="mb-0 text-center">
-                &copy; 2025 Análise e Desenvolvimento de Sistemas. Todos os direitos reservados.
-            </p>
-        </div>
-    </footer>
+        </footer>
 
     <div id="confirmation-modal" class="confirmation-modal-overlay d-none">
         <div class="confirmation-modal-content">
@@ -204,7 +150,62 @@
             </div>
         </div>
     </div>
+    
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="changePasswordModalLabel">Alterar Senha</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="change-password-form">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="current-password" class="form-label">Senha Atual</label>
+                            <input type="password" class="form-control" id="current-password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="new-password" class="form-label">Nova Senha</label>
+                            <input type="password" class="form-control" id="new-password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirm-new-password" class="form-label">Confirmar Nova Senha</label>
+                            <input type="password" class="form-control" id="confirm-new-password" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Alterar Senha</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteAccountModalLabel">Excluir Conta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="delete-account-form">
+                    <div class="modal-body">
+                        <p class="text-danger">Atenção: Esta ação é irreversível. Ao excluir sua conta, todos os seus dados de administrador serão perdidos.</p>
+                        <div class="mb-3">
+                            <label for="delete-password" class="form-label">Confirme sua Senha</label>
+                            <input type="password" class="form-control" id="delete-password" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger">Excluir Permanentemente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/trix/1.3.1/trix.min.js"></script>

@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 console.error('Erro na requisição DELETE:', error);
-                showMessage('Erro ao excluir a notícia.', 'error');
+                showMessage('Erro ao excluir o notícia.', 'error');
             }
         }
     };
@@ -318,7 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- Funções de Renderização de Conteúdo ---
     const renderizarNoticias = (containerId, listaNoticias) => {
         const container = document.getElementById(containerId);
         if (container) {
@@ -347,7 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             
                             <div class="card-body">
                                 <h5 class="card-title">${noticia.titulo}</h5>
-                                <p class="text-muted text-date" id="text-muted">Publicado em: ${new Date(noticia.data).toLocaleDateString()}</p>
+                                <p class="card-text"><small class="text-muted">Publicado por ${noticia.autor} em ${new Date(noticia.data).toLocaleDateString()}</small></p>
                                 <p class="card-text">${textoCurto}</p>
                                 <a href="${pathPrefix}noticia.html?id=${noticia.id}" class="btn btn-primary mt-2">Ler mais</a>
                             </div>
@@ -455,7 +454,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const imageInput = document.getElementById('imagem-noticia');
         const imagePreview = document.getElementById('image-preview');
 
-        // Lógica de UI para a imagem de destaque
         if (noticia.imagem) {
             imageInput.style.display = 'none';
             imagePreview.innerHTML = `
@@ -500,8 +498,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('btn-submit-curriculo').textContent = 'Salvar Edição';
     };
 
-
-    // --- Funções de Compartilhamento ---
     const setupShareButtons = (noticia) => {
         const shareButtons = document.getElementById('share-buttons');
 
@@ -580,9 +576,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-
-    // --- Lógica de Páginas ---
-
     if (document.getElementById('noticias-container')) {
         carregarNoticiasDoBackend().then(noticias => {
             if (noticias.length > 0) {
@@ -640,7 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                             <div class="col-12">
                                 <h1 class="display-4">${noticia.titulo}</h1>
-                                <p class="text-muted">Publicado em: ${new Date(noticia.data).toLocaleDateString()}</p>
+                                <p class="text-muted">Publicado por ${noticia.autor} em ${new Date(noticia.data).toLocaleDateString()}</p>
                                 
                                 <div id="share-buttons" class="mb-4 d-flex flex-wrap align-items-center gap-2">
                                     <p class="m-0 align-self-center me-2">Compartilhe:</p>
@@ -687,32 +680,256 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Declaração de variáveis
     const loginForm = document.getElementById('login-form');
     const adminPanel = document.getElementById('admin-panel');
     const loginContainer = document.getElementById('login-container');
     const newsForm = document.getElementById('news-form');
     const curriculoForm = document.getElementById('curriculo-form');
+    const keyForm = document.getElementById('key-form');
+    const btnRequestKey = document.getElementById('request-key-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const changePasswordBtn = document.getElementById('change-password-btn');
+    const deleteAccountBtn = document.getElementById('delete-account-btn');
+    const changePasswordForm = document.getElementById('change-password-form');
+    const deleteAccountForm = document.getElementById('delete-account-form');
 
-    if (loginForm && loginContainer && adminPanel) {
+
+    // Funções do Admin Panel
+    const loadAdminPanelContent = async () => {
+        const noticiasParaAdmin = await carregarNoticiasDoBackend();
+        renderizarNoticiasAdmin(noticiasParaAdmin);
+        const curriculoParaAdmin = await carregarCurriculoDoBackend();
+        renderizarCurriculoAdmin(curriculoParaAdmin);
+        
+        const adminName = localStorage.getItem('adminName');
+        if (adminName) {
+            document.getElementById('admin-name').textContent = adminName;
+        }
+
+        if (adminPanel) {
+            adminPanel.classList.remove('d-none');
+        }
+    };
+
+    const checkAuthAndRedirect = () => {
+        const isLoggedIn = localStorage.getItem('isAuthenticated') === 'true';
+        const currentPage = window.location.pathname.split('/').pop();
+
+        if (currentPage === 'admin.html' && !isLoggedIn) {
+            window.location.href = 'admin-login.html';
+        } else if (currentPage === 'admin.html' && isLoggedIn) {
+            loadAdminPanelContent();
+        } else if (currentPage === 'admin-login.html' && isLoggedIn) {
+            window.location.href = 'admin.html';
+        }
+    };
+    
+    if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            if (username === 'admin' && password === '123') {
-                if (loginContainer && adminPanel) {
-                    loginContainer.classList.add('d-none');
-                    adminPanel.classList.remove('d-none');
-                    showMessage('Login realizado com sucesso!', 'success');
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
 
-                    const noticiasParaAdmin = await carregarNoticiasDoBackend();
-                    renderizarNoticiasAdmin(noticiasParaAdmin);
-
-                    const curriculoParaAdmin = await carregarCurriculoDoBackend();
-                    renderizarCurriculoAdmin(curriculoParaAdmin);
+                if (response.status === 401) {
+                    showMessage('Credenciais inválidas!', 'error');
+                } else if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        localStorage.setItem('isAuthenticated', 'true');
+                        localStorage.setItem('adminName', data.adminName);
+                        localStorage.setItem('adminEmail', username);
+                        showMessage('Login realizado com sucesso!', 'success');
+                        setTimeout(() => window.location.href = 'admin.html', 1500);
+                    }
+                } else {
+                    showMessage('Erro no servidor. Tente novamente.', 'error');
                 }
-            } else {
-                showMessage('Credenciais inválidas!', 'error');
+            } catch (error) {
+                console.error('Erro no login:', error);
+                showMessage('Não foi possível conectar ao servidor.', 'error');
+            }
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('adminName');
+            localStorage.removeItem('adminEmail');
+            window.location.href = 'admin-login.html';
+        });
+    }
+    
+    if (changePasswordBtn) {
+        changePasswordBtn.addEventListener('click', () => {
+            const adminEmail = localStorage.getItem('adminEmail');
+            if (!adminEmail) {
+                showMessage("Você precisa estar logado para alterar a senha.", "error");
+                return;
+            }
+            const changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
+            changePasswordModal.show();
+        });
+    }
+
+    if (deleteAccountBtn) {
+        deleteAccountBtn.addEventListener('click', () => {
+            const adminEmail = localStorage.getItem('adminEmail');
+            if (!adminEmail) {
+                showMessage("Você precisa estar logado para excluir a conta.", "error");
+                return;
+            }
+            const deleteAccountModal = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
+            deleteAccountModal.show();
+        });
+    }
+
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmNewPassword = document.getElementById('confirm-new-password').value;
+
+            if (newPassword !== confirmNewPassword) {
+                showMessage("As novas senhas não coincidem.", "error");
+                return;
+            }
+
+            const adminEmail = localStorage.getItem('adminEmail');
+            if (!adminEmail) {
+                showMessage("E-mail do administrador não encontrado. Faça o login novamente.", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/change-password', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: adminEmail, currentPassword, newPassword })
+                });
+
+                if (response.ok) {
+                    showMessage('Senha alterada com sucesso!', 'success');
+                    document.getElementById('changePasswordModal').querySelector('.btn-close').click();
+                    logoutBtn.click();
+                } else if (response.status === 401) {
+                    showMessage('Senha atual incorreta.', 'error');
+                } else {
+                    const error = await response.json();
+                    showMessage(error.error || 'Falha ao alterar a senha.', 'error');
+                }
+            } catch (error) {
+                showMessage('Não foi possível conectar ao servidor.', 'error');
+            }
+        });
+    }
+    
+    if (deleteAccountForm) {
+        deleteAccountForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('delete-password').value;
+
+            const confirmed = await showConfirmation('Tem certeza que deseja excluir sua conta? Esta ação é irreversível.');
+            if (confirmed) {
+                const adminEmail = localStorage.getItem('adminEmail');
+                if (!adminEmail) {
+                    showMessage("E-mail do administrador não encontrado. Faça o login novamente.", "error");
+                    return;
+                }
+                try {
+                    const response = await fetch('http://localhost:8080/api/auth/delete-account', {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: adminEmail, password })
+                    });
+
+                    if (response.ok) {
+                        showMessage('Conta excluída com sucesso!', 'success');
+                        document.getElementById('deleteAccountModal').querySelector('.btn-close').click();
+                        logoutBtn.click();
+                    } else if (response.status === 401) {
+                        showMessage('Senha incorreta.', 'error');
+                    } else {
+                        const error = await response.json();
+                        showMessage(error.error || 'Falha ao excluir a conta.', 'error');
+                    }
+                } catch (error) {
+                    showMessage('Não foi possível conectar ao servidor.', 'error');
+                }
+            }
+        });
+    }
+
+    if (btnRequestKey) {
+        btnRequestKey.addEventListener('click', async () => {
+            const solicitanteEmail = document.getElementById('email-cad-admin').value;
+            
+            if (!solicitanteEmail) {
+                showMessage('Por favor, insira o seu e-mail para solicitar a chave.', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/request-key', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: solicitanteEmail })
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage(data.message, 'success');
+                } else {
+                    showMessage(data.error || 'Erro ao solicitar a chave.', 'error');
+                }
+            } catch (error) {
+                console.error('Erro ao solicitar a chave:', error);
+                showMessage('Não foi possível conectar ao servidor.', 'error');
+            }
+        });
+    }
+
+    if (keyForm) {
+        keyForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email-cad-admin').value;
+            const key = document.getElementById('key-admin').value;
+            const nome = document.getElementById('nome-cad-admin').value;
+            const sobrenome = document.getElementById('sobrenome-cad-admin').value;
+            const password = document.getElementById('password-cad-admin').value;
+            const confirmPassword = document.getElementById('confirm-password-cad-admin').value;
+
+            if (password !== confirmPassword) {
+                showMessage('As senhas não coincidem!', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/register-admin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, key, nome, sobrenome, password })
+                });
+
+                if (response.ok) {
+                    showMessage('Administrador cadastrado com sucesso!', 'success');
+                    setTimeout(() => window.location.href = 'admin-login.html', 2500);
+                } else {
+                    const error = await response.json();
+                    showMessage(error.error || 'Erro ao cadastrar administrador.', 'error');
+                }
+            } catch (error) {
+                console.error('Erro no cadastro:', error);
+                showMessage('Não foi possível conectar ao servidor.', 'error');
             }
         });
     }
@@ -726,6 +943,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const texto = trixEditor.value;
             const file = document.getElementById('imagem-noticia').files[0];
             const btnSubmit = document.getElementById('btn-submit-news');
+            const autor = localStorage.getItem('adminName');
+
+            if (!autor) {
+                showMessage("Não foi possível identificar o autor da notícia. Faça o login novamente.", "error");
+                return;
+            }
 
             let imagemUrl = '';
             if (file) {
@@ -752,7 +975,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 imagemUrl = noticiaExistente.imagem;
             }
 
-            const novaNoticia = { id: noticiaId || null, titulo, imagem: imagemUrl, texto };
+            const novaNoticia = { id: noticiaId || null, titulo, imagem: imagemUrl, texto, autor: autor };
             const method = noticiaId ? 'PUT' : 'POST';
             const url = noticiaId ? `http://localhost:8080/api/noticias/${noticiaId}` : 'http://localhost:8080/api/noticias';
 
@@ -832,7 +1055,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Lógica para upload de imagens no Trix Editor ---
     const inicializarTrixUploader = () => {
         document.removeEventListener('trix-attachment-add', handleTrixAttachment);
         document.addEventListener('trix-attachment-add', handleTrixAttachment);
@@ -875,7 +1097,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     inicializarTrixUploader();
     
-    // Funções do Modal
     function createModal(imageUrl) {
         const modalOverlay = document.createElement('div');
         modalOverlay.classList.add('modal-overlay');
@@ -902,4 +1123,6 @@ document.addEventListener('DOMContentLoaded', () => {
             modalOverlay.remove();
         }
     }
+    
+    checkAuthAndRedirect();
 });
