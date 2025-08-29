@@ -1,5 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    // --- Lógica de Carregamento ---
+    const loadingOverlay = document.getElementById('loading-overlay');
+
+    const showLoading = () => {
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'flex';
+        }
+    };
+
+    const hideLoading = () => {
+        if (loadingOverlay) {
+            loadingOverlay.style.display = 'none';
+        }
+    };
+
     // --- Lógica de Temas ---
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const body = document.body;
@@ -155,7 +170,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadTheme();
 
-    const showMessage = (message, type = 'info', duration = 2500) => {
+    const ICONS = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle',
+        info: 'fas fa-info-circle'
+    };
+
+    const showMessage = (message, type = 'info', duration = 3000) => {
         let wrapper = document.getElementById('message-wrapper');
         if (!wrapper) {
             wrapper = document.createElement('div');
@@ -163,26 +184,51 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(wrapper);
         }
 
+        // Se já houver uma mensagem, remove a antiga para evitar sobreposição
+        if (wrapper.children.length > 0) {
+            wrapper.innerHTML = '';
+        }
+
         const messageContainer = document.createElement('div');
         messageContainer.classList.add('custom-message', `custom-message--${type}`);
-        messageContainer.textContent = message;
 
-        wrapper.innerHTML = '';
+        // Cria o ícone
+        const iconContainer = document.createElement('div');
+        iconContainer.classList.add('message-icon');
+        const icon = document.createElement('i');
+        icon.className = ICONS[type] || ICONS.info;
+        iconContainer.appendChild(icon);
+
+        // Cria o conteúdo de texto
+        const contentContainer = document.createElement('div');
+        contentContainer.classList.add('message-content');
+        const textSpan = document.createElement('span');
+        textSpan.classList.add('message-text');
+        textSpan.textContent = message;
+        contentContainer.appendChild(textSpan);
+
+        // Adiciona o ícone e o texto ao contêiner da mensagem
+        messageContainer.appendChild(iconContainer);
+        messageContainer.appendChild(contentContainer);
+
         wrapper.appendChild(messageContainer);
 
+        // Força o reflow para garantir a animação de entrada
+        void messageContainer.offsetWidth;
+
+        // Inicia a animação de entrada
         messageContainer.classList.add('show');
 
+        // Define o tempo para a mensagem desaparecer
         setTimeout(() => {
             messageContainer.classList.remove('show');
             messageContainer.classList.add('hide');
         }, duration);
 
+        // Remove a mensagem do DOM após a animação de saída
         messageContainer.addEventListener('animationend', (event) => {
-            if (event.animationName === 'slide-out-up') {
+            if (event.animationName === 'slideOutUp') {
                 messageContainer.remove();
-                if (wrapper.children.length === 0) {
-                    wrapper.remove();
-                }
             }
         });
     };
@@ -231,6 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const carregarNoticiasDoBackend = async () => {
+        showLoading();
         try {
             const response = await fetch('http://localhost:8080/api/noticias');
             if (!response.ok) {
@@ -242,10 +289,13 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Erro na requisição GET de notícias:', error);
             showMessage('Não foi possível carregar as notícias. Tente novamente mais tarde.', 'error');
             return [];
+        } finally {
+            hideLoading();
         }
     };
 
     const carregarNoticiaPorId = async (id) => {
+        showLoading();
         try {
             const response = await fetch(`http://localhost:8080/api/noticias/${id}`);
             if (!response.ok) {
@@ -257,12 +307,15 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Erro na requisição GET de uma notícia:', error);
             showMessage('Não foi possível carregar a notícia. Verifique o ID.', 'error');
             return null;
+        } finally {
+            hideLoading();
         }
     };
 
     const excluirNoticia = async (id) => {
         const confirmed = await showConfirmation('Tem certeza que deseja excluir esta notícia?');
         if (confirmed) {
+            showLoading();
             try {
                 const token = localStorage.getItem('jwtToken');
                 const response = await fetch(`http://localhost:8080/api/noticias/${id}`, {
@@ -281,11 +334,14 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Erro na requisição DELETE:', error);
                 showMessage('Erro ao excluir o notícia.', 'error');
+            } finally {
+                hideLoading();
             }
         }
     };
 
     const carregarCurriculoDoBackend = async () => {
+        showLoading();
         try {
             const response = await fetch('http://localhost:8080/api/curriculo');
             if (!response.ok) {
@@ -297,12 +353,15 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Erro na requisição GET do currículo:', error);
             showMessage('Não foi possível carregar a grade curricular.', 'error');
             return [];
+        } finally {
+            hideLoading();
         }
     };
 
     const excluirPeriodo = async (id) => {
         const confirmed = await showConfirmation('Tem certeza que deseja excluir este período?');
         if (confirmed) {
+            showLoading();
             try {
                 const token = localStorage.getItem('jwtToken');
                 const response = await fetch(`http://localhost:8080/api/curriculo/${id}`, {
@@ -322,6 +381,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Erro na requisição DELETE de período:', error);
                 showMessage('Erro ao excluir o período.', 'error');
+            } finally {
+                hideLoading();
             }
         }
     };
@@ -351,7 +412,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="col-md-4 mb-4">
                         <div class="card h-100">
                             ${imagemHtml}
-
                             <div class="card-body">
                                 <h5 class="card-title">${noticia.titulo}</h5>
                                 <p class="card-text"><small class="text-muted">Publicado por ${noticia.autor} em ${new Date(noticia.data).toLocaleDateString()}</small></p>
@@ -460,7 +520,9 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.edit-periodo-btn').forEach(button => {
                 button.addEventListener('click', async (e) => {
                     const id = e.target.getAttribute('data-id');
+                    showLoading();
                     const periodo = await fetch(`http://localhost:8080/api/curriculo/${id}`).then(res => res.json());
+                    hideLoading();
                     if (periodo) {
                         preencherFormularioCurriculo(periodo);
                     }
@@ -768,7 +830,7 @@ document.addEventListener('DOMContentLoaded', () => {
             requestsList.innerHTML = `<p class="text-danger">Acesso negado. Faça o login como Master Admin.</p>`;
             return;
         }
-
+        showLoading();
         try {
             const response = await fetch('http://localhost:8080/api/auth/requests', {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -808,6 +870,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Erro ao carregar solicitações:', error);
             showMessage('Erro ao carregar solicitações. Verifique o console.', 'error');
+        } finally {
+            hideLoading();
         }
     };
 
@@ -873,7 +937,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage("Token não encontrado.", "error");
             return;
         }
-
+        showLoading();
         try {
             const response = await fetch(`http://localhost:8080/api/auth/requests/approve/${id}`, {
                 method: 'POST',
@@ -889,6 +953,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Erro na aprovação:', error);
             showMessage('Erro de conexão ao aprovar a solicitação.', 'error');
+        } finally {
+            hideLoading();
         }
     };
 
@@ -898,7 +964,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage("Token não encontrado.", "error");
             return;
         }
-
+        showLoading();
         try {
             const response = await fetch(`http://localhost:8080/api/auth/requests/reject/${id}`, {
                 method: 'DELETE',
@@ -914,6 +980,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Erro na rejeição:', error);
             showMessage('Erro de conexão ao rejeitar a solicitação.', 'error');
+        } finally {
+            hideLoading();
         }
     };
 
@@ -936,6 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            showLoading();
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
@@ -965,6 +1034,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Erro no login:', error);
                 showMessage('Não foi possível conectar ao servidor.', 'error');
+            } finally {
+                hideLoading();
             }
         });
     }
@@ -1023,7 +1094,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMessage("Sessão expirada. Faça o login novamente.", "error");
                 return;
             }
-
+            showLoading();
             try {
                 const response = await fetch('http://localhost:8080/api/auth/change-password', {
                     method: 'PUT',
@@ -1046,6 +1117,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (error) {
                 showMessage('Não foi possível conectar ao servidor.', 'error');
+            } finally {
+                hideLoading();
             }
         });
     }
@@ -1063,6 +1136,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showMessage("Sessão expirada. Faça o login novamente.", "error");
                     return;
                 }
+                showLoading();
                 try {
                     const response = await fetch('http://localhost:8080/api/auth/delete-account', {
                         method: 'DELETE',
@@ -1085,6 +1159,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } catch (error) {
                     showMessage('Não foi possível conectar ao servidor.', 'error');
+                } finally {
+                    hideLoading();
                 }
             }
         });
@@ -1099,7 +1175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMessage('Por favor, insira o seu e-mail para solicitar a chave.', 'error');
                 return;
             }
-
+            showLoading();
             try {
                 const response = await fetch('http://localhost:8080/api/auth/request-access', {
                     method: 'POST',
@@ -1116,6 +1192,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Erro ao solicitar acesso:', error);
                 showMessage('Não foi possível conectar ao servidor.', 'error');
+            } finally {
+                hideLoading();
             }
         });
     }
@@ -1134,7 +1212,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMessage('As senhas não coincidem!', 'error');
                 return;
             }
-
+            showLoading();
             try {
                 const response = await fetch('http://localhost:8080/api/auth/register-admin', {
                     method: 'POST',
@@ -1152,6 +1230,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('Erro no cadastro:', error);
                 showMessage('Não foi possível conectar ao servidor.', 'error');
+            } finally {
+                hideLoading();
             }
         });
     }
@@ -1159,6 +1239,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (newsForm) {
         newsForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            showLoading();
             const trixEditor = document.querySelector('trix-editor');
             const noticiaId = document.getElementById('noticia-id').value;
             const titulo = document.getElementById('titulo-noticia').value;
@@ -1168,6 +1249,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('jwtToken');
 
             if (!autor || !token) {
+                hideLoading();
                 showMessage("Sessão expirada. Faça o login novamente.", "error");
                 return;
             }
@@ -1191,6 +1273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } catch (error) {
                     console.error('Erro no upload da imagem:', error);
                     showMessage(`Erro ao fazer o upload da imagem: ${error.message}`, 'error');
+                    hideLoading();
                     return;
                 }
             } else if (noticiaId) {
@@ -1225,6 +1308,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 showMessage(`Erro ao adicionar notícia: ${error.message}`, 'error');
                 console.error('Erro na requisição:', error);
+            } finally {
+                hideLoading();
             }
         });
     }
@@ -1232,6 +1317,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (curriculoForm) {
         curriculoForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            showLoading();
             const periodoId = document.getElementById('periodo-id').value;
             const nome = document.getElementById('periodo-nome').value;
             const disciplinas = document.getElementById('periodo-disciplinas').value
@@ -1241,6 +1327,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('jwtToken');
 
             if (!token) {
+                hideLoading();
                 showMessage("Sessão expirada. Faça o login novamente.", "error");
                 return;
             }
@@ -1275,6 +1362,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 showMessage(`Erro ao salvar grade: ${error.message}`, 'error');
                 console.error('Erro na requisição:', error);
+            } finally {
+                hideLoading();
             }
         });
     }

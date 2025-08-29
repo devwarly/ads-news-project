@@ -11,6 +11,7 @@
     --card-bg-nav: #ffffff;
     --border-color: #e9ecef;
     --shadow-color: rgba(0, 0, 0, 0.08);
+    --input: #f1f1f1;
 
     --text-color-main: #212529;
     --text-color-heading: var(--primary-color);
@@ -20,6 +21,14 @@
     --particles-color: #0d47a1;
     --footer: #212529;
     --tougle-btn: #9e9e9e;
+
+    --footer-bg-color: #1a1a1a;
+    --footer-text-color: #f0f0f0;
+    --footer-text-muted-color: #aaaaaa;
+    --footer-link-color: #0d47a1;
+    --footer-link-hover-color: #0d47a1;
+    --footer-social-color: #ffffff;
+    --footer-social-hover-color: #00bfff;
 }
 
 /* --- Variáveis de Cores: Tema Escuro --- */
@@ -30,9 +39,10 @@
     --accent-color: #03dac6;
     --navbarr: #03dac52f;
     --card-bg: rgb(20, 20, 20);
-    --card-bg-nav: #090c0e;
+    --card-bg-nav: #0f1316;
     --border-color: #333333;
     --shadow-color: rgba(0, 0, 0, 0.4);
+    --input: #101418;
 
     --text-color-main: #e0e0e0;
     --text-color-heading: var(--primary-color);
@@ -42,7 +52,17 @@
     --particles-color: #73c2cc;
     --footer: #0c0c0c;
     --tougle-btn: #9e9e9e;
+
+    --footer-bg-color: #1a1a1a;
+    --footer-text-color: #f0f0f0;
+    --footer-text-muted-color: #aaaaaa;
+    --footer-link-color: #09bdb4;
+    --footer-link-hover-color: #00ffff;
+    --footer-social-color: #ffffff;
+    --footer-social-hover-color: #09bdb4;
 }
+
+
 
 /* --- Fontes Globais --- */
 :root {
@@ -56,12 +76,12 @@
 
 /* Adicione esta regra ao seu arquivo de estilos.css */
 .dropdown-with-zindex {
-    z-index: 1000; 
+    z-index: 1000;
 }
 
 /*Chave de acesso Admin*/
 
-#key-container h2{
+#key-container h2 {
     text-align: center;
 }
 
@@ -122,100 +142,129 @@
     min-width: 100px;
 }
 
-/* Container que agrupa a mensagem (apenas uma por vez) */
+/* Loanding */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Fundo semi-transparente */
+    display: none; /* A animação nasce escondida */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.spinner-loading {
+    border: 8px solid #f3f3f3; /* Cor do "fundo" do spinner */
+    border-top: 8px solid var(--primary-color, #3498db); /* Cor do arco de carregamento */
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite; /* Aplica a animação */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+/* Container principal - Posiciona as mensagens */
 #message-wrapper {
     position: fixed;
     top: 20px;
     left: 50%;
     transform: translateX(-50%); /* Centraliza horizontalmente */
     z-index: 9999;
+    display: flex;
+    flex-direction: column; /* Mensagens novas aparecem abaixo das antigas */
+    align-items: center; /* Alinha as mensagens ao centro */
+    gap: 10px;
 }
 
-/* Estilo básico da mensagem */
+/* Estilo do card da mensagem */
 .custom-message {
-    padding: 12px 20px;
+    padding: 15px 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     color: #fff;
-    font-weight: bold;
-    font-size: 1rem;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    min-width: 250px;
+    max-width: 400px;
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Espaço entre o ícone e o texto */
     
-    /* Posição inicial: escondida no topo */
-    transform: translateY(-100%);
+    /* Posição inicial fora da tela (topo) */
+    transform: translateY(-110%);
     opacity: 0;
 }
 
-/* Animação para a mensagem aparecer */
-@keyframes slide-in-down {
-    from {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+/* Ícones da mensagem */
+.message-icon {
+    font-size: 1.8rem;
+    line-height: 1; /* Alinha o ícone verticalmente */
 }
 
-/* Animação para a mensagem desaparecer */
-@keyframes slide-out-up {
-    from {
-        transform: translateY(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateY(-100%);
-        opacity: 0;
-    }
+/* Texto da mensagem */
+.message-content {
+    flex-grow: 1;
+    font-weight: 500;
 }
 
-/* Classes para disparar as animações */
+/* Cores e ícones por tipo de mensagem */
+.custom-message--success {
+    background-color: #4CAF50; /* Verde */
+}
+.custom-message--success .message-icon {
+    color: #e8f5e9;
+}
+
+.custom-message--error {
+    background-color: #F44336; /* Vermelho */
+}
+.custom-message--error .message-icon {
+    color: #ffebee;
+}
+
+.custom-message--info {
+    background-color: #2196F3; /* Azul */
+}
+.custom-message--info .message-icon {
+    color: #e3f2fd;
+}
+
+/* Animações de entrada e saída */
 .custom-message.show {
-    animation: slide-in-down 0.5s forwards; /* 'forwards' mantém o estado final da animação */
+    animation: slideInDown 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 .custom-message.hide {
-    animation: slide-out-up 0.5s forwards;
+    animation: slideOutUp 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
 }
 
-/* Cores de fundo para os diferentes tipos de mensagem */
-.custom-message--success {
-    background-color: #28a745; /* Verde para sucesso */
+@keyframes slideInDown {
+    from {
+        transform: translateY(-110%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
-.custom-message--error {
-    background-color: #dc3545; /* Vermelho para erro */
-}
-
-.custom-message--info {
-    background-color: #17a2b8; /* Azul para informação */
-}
-
-/* Estilo para a mensagem aparecer */
-#message-wrapper .custom-message {
-    /* Desliza para a posição visível */
-    transform: translateY(0);
-    opacity: 1;
-}
-
-/* Estilo para a mensagem desaparecer (ativado pelo JavaScript) */
-.custom-message--hide {
-    /* Desliza para fora da tela, para cima */
-    transform: translateY(-100%);
-    opacity: 0;
-}
-
-/* Cores de fundo para os diferentes tipos de mensagem */
-.custom-message--success {
-    background-color: #28a745; /* Verde para sucesso */
-}
-
-.custom-message--error {
-    background-color: #dc3545; /* Vermelho para erro */
-}
-
-.custom-message--info {
-    background-color: #17a2b8; /* Azul para informação */
+@keyframes slideOutUp {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-110%);
+        opacity: 0;
+    }
 }
 
 /* Estilos para a formatação de texto do Trix Editor */
@@ -230,7 +279,8 @@
 }
 
 .trix-content strong {
-    font-weight: bold; /* Garante que o negrito funcione */
+    font-weight: bold;
+    /* Garante que o negrito funcione */
 }
 
 /* Adicione outros estilos para listas, links, etc., se necessário */
@@ -262,6 +312,8 @@ body {
 label {
     color: var(--text-color-list);
 }
+
+
 
 .container {
     max-width: 1140px;
@@ -306,7 +358,7 @@ a:hover {
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.navbar .container{
+.navbar .container {
     background-color: var(--card-bg-nav);
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -600,36 +652,170 @@ a:hover {
 
 /* --- Footer --- */
 .footer {
-    background-color: var(--footer);
-    color: #fff;
-    padding: 40px 0;
-    margin-top: 60px;
-    text-align: center;
-    display: flex;
-    justify-content: center;
+    background-color: var(--footer-bg-color);
+    color: var(--footer-text-color);
+    padding: 4rem 0;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
 }
 
-footer .container .row {
+/* Container for layout */
+.footer .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* Responsive grid layout for columns */
+.footer .row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+/* Style for column titles */
+.footer h4 {
+    color: var(--footer-text-color);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+    border-bottom: 2px solid var(--footer-link-color);
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+/* Style for general paragraphs and text */
+.footer p {
+    color: var(--footer-text-muted-color);
+    margin-bottom: 0.5rem;
+}
+
+/* Style for links */
+.footer {
+    background-color: var(--footer-bg-color);
+    color: var(--footer-text-color);
+    padding: 4rem 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.8;
+    border-top: 5px solid var(--footer-accent-color);
+}
+
+/* Container and layout */
+.footer .container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.footer .row {
     display: flex;
-    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: space-between;
+}
+
+.footer .col-md-4 {
+    flex: 1 1 300px;
+    /* Allow columns to grow and wrap */
+}
+
+/* Headings */
+.footer h4 {
+    color: var(--footer-heading-color);
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    position: relative;
     text-align: center;
 }
 
+/* Underline effect for headings */
+.footer h4::after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 3px;
+    background-color: var(--footer-accent-color);
+    margin-top: 5px;
+}
+
+/* Link styling */
+.footer a {
+    color: var(--footer-text-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: inline-block;
+    text-align: center;
+}
+
+.footer a:hover {
+    color: var(--footer-link-hover-color);
+}
+
+.footer .footer-link {
+    display: block;
+    /* Make these links stack */
+    margin-bottom: 0.5rem;
+    color: var(--footer-accent-color);
+    font-weight: 600;
+}
+
+/* Social icons section */
 .footer-socials {
     display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
     justify-content: center;
-    gap: 20px;
-    font-size: 25px;
+}
+
+.footer-socials a {
+    font-size: 2rem;
+    color: var(--footer-text-color);
+    transition: transform 0.3s ease, color 0.3s ease;
 }
 
 .footer-socials a:hover {
-    color: var(--primary-color);
+    transform: scale(1.1);
+    color: var(--footer-social-hover-color);
 }
 
-.footer p,
-.footer a {
-    color: #f1f3f58e;
+/* Contact information styling */
+.contact-item {
+    color: var(--footer-text-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
+
+.contact-item a {
+    color: var(--footer-text-color);
+}
+
+.contact-item a:hover {
+    color: var(--footer-link-hover-color);
+    text-decoration: underline;
+}
+
+.contact-item .fas {
+    font-size: 1.2rem;
+    color: var(--footer-accent-color);
+}
+
+/* Separator line */
+.footer hr {
+    border: none;
+    height: 1px;
+    background-color: var(--footer-border-color);
+    margin-top: 3rem;
+    margin-bottom: 2rem;
+}
+
+/* Copyright text */
+.footer p.text-center {
+    font-size: 0.9rem;
+    color: var(--footer-text-color);
+}
+
 
 /* --- Estilos do Trix Editor (Admin) --- */
 trix-toolbar {
@@ -731,22 +917,24 @@ trix-editor a {
 
 /* Estilo para a grade de imagens dentro das notícias */
 .image-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem; /* Espaçamento entre as imagens */
-  margin: 2rem 0; /* Espaço acima e abaixo da grade */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    /* Espaçamento entre as imagens */
+    margin: 2rem 0;
+    /* Espaço acima e abaixo da grade */
 }
 
 /* Opcional: Adiciona margem entre as imagens quando a grade não se aplica */
 .lead figure {
-  margin: 1rem 0;
+    margin: 1rem 0;
 }
 
 /* Garante que as imagens dentro da grade sejam responsivas */
 .image-grid figure img {
-  width: 100%;
-  height: auto;
-  display: block;
+    width: 100%;
+    height: auto;
+    display: block;
 }
 
 /* Garante que o texto da legenda seja centralizado */
@@ -796,7 +984,8 @@ trix-editor trix-attachment .attachment__caption {
 
 /* Estilos para a galeria de imagens (múltiplas imagens) */
 .attachment-gallery {
-    display: flex; /* Essencial para que as imagens fiquem lado a lado */
+    display: flex;
+    /* Essencial para que as imagens fiquem lado a lado */
     flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
@@ -933,31 +1122,38 @@ trix-editor trix-attachment .attachment__caption {
 
 /* Estilo para listas roláveis no painel de administração */
 .scrollable-list {
-    max-height: 400px; /* Defina a altura máxima desejada */
-    overflow-y: auto; /* Habilita a barra de rolagem vertical */
-    padding-right: 10px; /* Adiciona um pequeno padding para a barra de rolagem não ficar colada */
+    max-height: 500px;
+    /* Defina a altura máxima desejada */
+    overflow-y: auto;
+    /* Habilita a barra de rolagem vertical */
+    padding-right: 10px;
+    /* Adiciona um pequeno padding para a barra de rolagem não ficar colada */
 }
 
 /* Opcional: Adiciona um pequeno espaçamento entre os itens da lista para melhor leitura */
-#noticias-list-admin > div,
-#curriculo-list-admin > div {
+#noticias-list-admin>div,
+#curriculo-list-admin>div {
     margin-bottom: 10px;
 }
+
 /* Garante uma altura mínima para o Trix Editor e permite a rolagem */
 trix-editor {
-    min-height: 200px; /* Altura mínima para o editor */
-    max-height: 400px; /* Altura máxima para permitir a rolagem */
-    overflow-y: auto; /* Adiciona a barra de rolagem vertical quando o conteúdo excede a altura */
+    min-height: 200px;
+    /* Altura mínima para o editor */
+    max-height: 400px;
+    /* Altura máxima para permitir a rolagem */
+    overflow-y: auto;
+    /* Adiciona a barra de rolagem vertical quando o conteúdo excede a altura */
     border: 1px solid #ced4da;
     padding: 1rem;
 }
 
 /* Esconde o nome e o tamanho dos arquivos anexados no Trix Editor */
 .trix-content .attachment .attachment__caption {
-  display: none;
+    display: none;
 }
 
-.lead h1{
+.lead h1 {
     font-size: 1.50rem !important;
 }
 
@@ -971,8 +1167,8 @@ trix-editor {
 }
 
 .text-date {
-  color: var(--text-color-muted) !important;
-  font-size: 1rem;
+    color: var(--text-color-muted) !important;
+    font-size: 1rem;
 }
 
 .turma-curiosidades-container {
@@ -1026,16 +1222,40 @@ trix-editor {
     background-color: var(--primary-color);
 }
 
+.form-control {
+    background: var(--card-bg);
+    color: var(--text-color-list);
+}
+
+.form-control:focus {
+    background-color: var(--card-bg-nav);
+    color: var(--text-color-list);
+}
+
 /* Animação para o conteúdo aparecer */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Animação para o conteúdo desaparecer */
 @keyframes fadeOut {
-    from { opacity: 1; transform: translateY(0); }
-    to   { opacity: 0; transform: translateY(-10px); }
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
 }
 
 /* Aplica a animação no conteúdo da pergunta e resposta */
@@ -1047,10 +1267,26 @@ trix-editor {
     animation: fadeOut 0.5s ease-out forwards;
 }
 
+
+
 /* --- Responsividade --- */
 @media (max-width: 992px) {
     .hero-section h1 {
         font-size: 3rem;
+    }
+
+    .header {
+        background-color: var(--card-bg-nav);
+    }
+
+    .navbar .container {
+        background-color: transparent;
+        border-radius: 10px;
+        box-shadow: none;
+    }
+
+    .hero-section {
+        margin-top: 0;
     }
 
     .attachment img {
@@ -1063,7 +1299,7 @@ trix-editor {
         margin-left: auto;
         margin-right: auto;
     }
-    
+
     /* Adiciona um efeito de zoom ao passar o mouse */
     .attachment:hover {
         transform: scale(1.03);
@@ -1072,9 +1308,19 @@ trix-editor {
 }
 
 @media (max-width: 768px) {
+    .footer .col-md-4 {
+        text-align: center;
+        /* Center all content on small screens */
+    }
 
-    #footer-key {
-        margin-top: 100px;
+    .footer .footer-socials {
+        justify-content: center;
+        /* Center social icons */
+    }
+
+    .footer h4::after {
+        margin: 5px auto 0;
+        /* Center the underline as well */
     }
 
     .hero-section {

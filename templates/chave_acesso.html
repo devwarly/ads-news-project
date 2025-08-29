@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,9 +9,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../styles/styles.css">
     <link rel="icon" type="image/x-icon" href="../img/LogoAds.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
+
 <body class="body-key">
     <header class="header"></header>
+
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner-loading"></div>
+    </div>
     <main class="container my-5">
         <div id="request-access-container" style="max-width: 600px; margin-left: auto; margin-right: auto;"
             class="row justify-content-center">
@@ -19,16 +26,28 @@
                 <div class="mb-3">
                     <label for="email-solicitante" class="form-label">E-mail do Solicitante</label>
                     <input type="email" class="form-control" id="email-solicitante" required>
-                    <p class="form-text text-muted">A solicitação será enviada para aprovação do administrador mestre.</p>
+                    <p class="form-text text-muted">A solicitação será enviada para aprovação do administrador mestre.
+                    </p>
                 </div>
-                <a style="text-decoration: underline; font-size: 18px;" href="register-subadmin.html">Já recebi a key de acesso</a>
+                <a style="text-decoration: underline; font-size: 18px;" href="register-subadmin.html">Já recebi a key de
+                    acesso</a>
                 <button style="margin-top: 20px;" type="submit" class="btn btn-primary w-100">Solicitar Acesso</button>
             </form>
             <div id="message-container" class="mt-4"></div>
         </div>
     </main>
+
+    <div class="custom-message custom-message--success">
+        <div class="message-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="message-content">
+            <span class="message-text">Sua operação foi concluída com sucesso!</span>
+        </div>
+    </div>
     <footer></footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../static/script.js"></script>
 </body>
+
 </html>

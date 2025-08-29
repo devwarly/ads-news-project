@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../styles/styles.css">
     <link rel="icon" type="image/x-icon" href="../img/LogoAds.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
 <body>
@@ -51,6 +52,19 @@
         </nav>
     </header>
 
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner-loading"></div>
+    </div>
+
+    <div class="custom-message custom-message--success">
+        <div class="message-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="message-content">
+            <span class="message-text">Sua operação foi concluída com sucesso!</span>
+        </div>
+    </div>
+
     <main class="container my-5" id="conttt">
         <div class="card p-5">
             <h1 class="text-center mb-4">Grade Curricular do Curso de ADS</h1>
@@ -78,34 +92,37 @@
                 <div class="col-md-4 mb-3">
                     <h4 class="mb-3">ADS Notícias</h4>
                     <p>O seu portal de informações sobre o curso de Análise e Desenvolvimento de Sistemas.</p>
-                    <a style="text-decoration: underline;" href="termos_de_uso.html">Termos de uso</a>
-                    <a href="sobre_o_site.html"
-                        style="font-size: 1rem; color: var(--text-color-muted); text-decoration: none;">
+                    <a class="footer-link" href="termos_de_uso.html">Termos de uso</a>
+                    <a class="footer-link" href="sobre_o_site.html">
                         Informações sobre o Site
                     </a>
                 </div>
                 <div class="col-md-4 mb-3">
                     <h4 class="mb-3">Siga-nos</h4>
                     <div class="footer-socials">
-                        <a href="https://www.instagram.com/adsfasec?igsh=N3ByODZ1YzZ4c3V1" target="_blank"><i
-                                class="fab fa-instagram"></i></a>
-                        <a href="https://www.tiktok.com/@dev.fasec?_t=ZM-8ytJT184rUW&_r=1" target="_blank"><i
-                                class="fab fa-tiktok"></i></a>
-                        <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                        <a href="https://www.instagram.com/adsfasec?igsh=N3ByODZ1YzZ4c3V1" target="_blank">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://www.tiktok.com/@dev.fasec?_t=ZM-8ytJT184rUW&_r=1" target="_blank">
+                            <i class="fab fa-tiktok"></i>
+                        </a>
+                        <a href="https://github.com" target="_blank">
+                            <i class="fab fa-github"></i>
+                        </a>
                     </div>
                 </div>
                 <div class="col-md-4 mb-3">
                     <h4 class="mb-3">Contato</h4>
-                    <p style="text-decoration: underline;">
-                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=thesuport.ads@gmail.com"
-                            style="color: inherit;">
+                    <p class="contact-item">
+                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=thesuport.ads@gmail.com">
                             <i class="fas fa-envelope me-2"></i> thesuport.ads@gmail.com
                         </a>
                     </p>
-                    <p><i class="fas fa-map-marker-alt me-2"></i> Rua de Pedestres, 403 Norte, FASEC - Palmas</p>
+                    <p class="contact-item"><i class="fas fa-map-marker-alt me-2"></i> Rua de Pedestres, 403 Norte,
+                        FASEC - Palmas</p>
                 </div>
             </div>
-            <hr class="mt-4 mb-3" style="border-color: rgba(255, 255, 255, 0.2);">
+            <hr class="mt-4 mb-3">
             <p class="mb-0 text-center">
                 &copy; 2025 Análise e Desenvolvimento de Sistemas. Todos os direitos reservados.
             </p>
