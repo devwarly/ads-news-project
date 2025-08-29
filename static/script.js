@@ -16,7 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Lógica de Temas ---
-    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    // --- Lógica de Temas ---
+// --- Lógica de Temas ---
+    const themeToggle = document.getElementById('theme');
     const body = document.body;
     const logoImg = document.getElementById('logo-img');
     const heroBackground = document.getElementById('hero-background');
@@ -119,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let logoPathLight = 'img/2.png';
         let logoPathDark = 'img/1.png';
 
+        // Ajuste os caminhos se as páginas estiverem em uma subpasta
         if (window.location.pathname.includes('/templates/')) {
             logoPathLight = '../img/2.png';
             logoPathDark = '../img/1.png';
@@ -126,8 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (savedTheme === 'dark') {
             body.classList.add('dark-theme');
-            if (themeToggleBtn) {
-                themeToggleBtn.innerHTML = '<i class="fas fa-sun"></i>';
+            if (themeToggle) {
+                themeToggle.checked = true;
             }
             if (logoImg) {
                 logoImg.src = logoPathDark;
@@ -137,8 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             body.classList.remove('dark-theme');
-            if (themeToggleBtn) {
-                themeToggleBtn.innerHTML = '<i class="fas fa-moon"></i>';
+            if (themeToggle) {
+                themeToggle.checked = false;
             }
             if (logoImg) {
                 logoImg.src = logoPathLight;
@@ -165,9 +168,13 @@ document.addEventListener('DOMContentLoaded', () => {
         loadTheme();
     };
 
-    if (themeToggleBtn) {
-        themeToggleBtn.addEventListener('click', toggleTheme);
+    if (themeToggle) {
+        themeToggle.addEventListener('change', toggleTheme);
     }
+
+    // ESTA LINHA É A MAIS IMPORTANTE
+    // Ela garante que o tema salvo no navegador seja carregado imediatamente
+    // ao carregar qualquer página
     loadTheme();
 
     const ICONS = {
