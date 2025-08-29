@@ -17,9 +17,15 @@
 
     <link style="border-radius: 50%;" rel="icon" type="image/png" href="img/LogoAds.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="styles/app.css">
+
 </head>
 
-<body>
+<body class="
+    <script>
+        document.write(localStorage.getItem('theme') === 'dark' ? 'dark-theme' : '');
+    </script>
+">
 
     <header class="header">
         <nav class="navbar navbar-expand-lg">
@@ -49,9 +55,23 @@
                             <a class="nav-link" href="templates/termos_de_uso.html">Termos</a>
                         </li>
                         <li class="nav-item ms-lg-3">
-                            <button id="theme-toggle-btn" class="theme-toggle-btn">
-                                <i class="fas fa-moon"></i>
-                            </button>
+                            <label for="theme" class="theme">
+                                <span class="theme__toggle-wrap">
+                                  <input id="theme" class="theme__toggle" type="checkbox" role="switch" name="theme" value="dark">
+                                  <span class="theme__fill"></span>
+                                  <span class="theme__icon">
+                                    <span class="theme__icon-part"></span>
+                                    <span class="theme__icon-part"></span>
+                                    <span class="theme__icon-part"></span>
+                                    <span class="theme__icon-part"></span>
+                                    <span class="theme__icon-part"></span>
+                                    <span class="theme__icon-part"></span>
+                                    <span class="theme__icon-part"></span>
+                                    <span class="theme__icon-part"></span>
+                                    <span class="theme__icon-part"></span>
+                                  </span>
+                                </span>
+                            </label>
                         </li>
                     </ul>
                 </div>
@@ -60,7 +80,7 @@
     </header>
 
     <div id="loading-overlay" class="loading-overlay">
-        <div class="spinner-loading"></div>
+        <div class="spinner"></div>
     </div>
 
     <main>
@@ -69,7 +89,20 @@
             <div id="particles-js"></div>
             <div class="container hero-content">
                 <h1 class="display-3">Análise e Desenvolvimento de Sistemas</h1>
-                <a href="templates/sobre_o_curso.html" class="btn btn-primary btn-lg">Sobre o Curso</a>
+                <a href="templates/sobre_o_curso.html">
+                    <button class="super-button">
+                        <span>Sobre o Curso</span>
+                        <svg fill="none" viewBox="0 0 24 24" class="arrow">
+                          <path
+                            stroke-linejoin="round"
+                            stroke-linecap="round"
+                            stroke-width="2"
+                            stroke="currentColor"
+                            d="M5 12h14M13 6l6 6-6 6"
+                          ></path>
+                        </svg>
+                    </button>
+                </a>
 
             </div>
         </section>
