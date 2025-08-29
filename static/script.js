@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggleBtn.addEventListener('click', toggleTheme);
     }
     loadTheme();
-    
+
     const showMessage = (message, type = 'info', duration = 2500) => {
         let wrapper = document.getElementById('message-wrapper');
         if (!wrapper) {
@@ -166,12 +166,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageContainer = document.createElement('div');
         messageContainer.classList.add('custom-message', `custom-message--${type}`);
         messageContainer.textContent = message;
-        
+
         wrapper.innerHTML = '';
         wrapper.appendChild(messageContainer);
 
         messageContainer.classList.add('show');
-        
+
         setTimeout(() => {
             messageContainer.classList.remove('show');
             messageContainer.classList.add('hide');
@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     handleCancel();
                 }
             };
-            
+
             confirmButton.addEventListener('click', handleConfirm);
             cancelButton.addEventListener('click', handleCancel);
             modalOverlay.addEventListener('click', handleOverlayClick);
@@ -264,13 +264,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const confirmed = await showConfirmation('Tem certeza que deseja excluir esta notícia?');
         if (confirmed) {
             try {
+                const token = localStorage.getItem('jwtToken');
                 const response = await fetch(`http://localhost:8080/api/noticias/${id}`, {
                     method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
                     showMessage('Notícia excluída com sucesso!', 'success');
                     const noticiasAtualizadas = await carregarNoticiasDoBackend();
                     renderizarNoticiasAdmin(noticiasAtualizadas);
+                } else if (response.status === 403) {
+                    showMessage('Você não tem permissão para excluir esta notícia.', 'error');
                 } else {
                     throw new Error('Falha ao excluir a notícia.');
                 }
@@ -300,14 +304,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const confirmed = await showConfirmation('Tem certeza que deseja excluir este período?');
         if (confirmed) {
             try {
+                const token = localStorage.getItem('jwtToken');
                 const response = await fetch(`http://localhost:8080/api/curriculo/${id}`, {
                     method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
                     showMessage('Período excluído com sucesso!', 'success');
                     const curriculoAtualizado = await carregarCurriculoDoBackend();
                     renderizarCurriculoAdmin(curriculoAtualizado);
                     renderizarTabelaCurriculo(curriculoAtualizado);
+                } else if (response.status === 403) {
+                    showMessage('Você não tem permissão para excluir este período.', 'error');
                 } else {
                     throw new Error('Falha ao excluir o período.');
                 }
@@ -323,27 +331,27 @@ document.addEventListener('DOMContentLoaded', () => {
         if (container) {
             container.innerHTML = '';
             listaNoticias.forEach(noticia => {
-                const imagemHtml = noticia.imagem ? `<img src="http://localhost:8080${noticia.imagem}" class="card-img-top" alt="Imagem da notícia">` : '';
-                
+                const imagemHtml = noticia.imagem ? `<img src="${noticia.imagem}" class="card-img-top" alt="Imagem da notícia">` : '';
+
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = noticia.texto;
                 const textoPlano = tempDiv.textContent || tempDiv.innerText || '';
-                
-                const limiteCaracteres = 150; 
-                let textoCurto = textoPlano.length > limiteCaracteres 
+
+                const limiteCaracteres = 150;
+                let textoCurto = textoPlano.length > limiteCaracteres
                     ? textoPlano.substring(0, limiteCaracteres) + '...'
                     : textoPlano;
-                
+
                 let pathPrefix = '';
                 if (!window.location.pathname.includes('/templates/')) {
                     pathPrefix = 'templates/';
                 }
-                
+
                 container.innerHTML += `
                     <div class="col-md-4 mb-4">
                         <div class="card h-100">
                             ${imagemHtml}
-                            
+
                             <div class="card-body">
                                 <h5 class="card-title">${noticia.titulo}</h5>
                                 <p class="card-text"><small class="text-muted">Publicado por ${noticia.autor} em ${new Date(noticia.data).toLocaleDateString()}</small></p>
@@ -361,17 +369,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('noticias-list-admin');
         if (container) {
             container.innerHTML = '';
+            const adminEmail = localStorage.getItem('adminEmail');
+            const adminRole = localStorage.getItem('adminRole');
+            const isMasterAdmin = adminRole === 'MASTER_ADMIN';
+
             listaNoticias.forEach(noticia => {
+                const isAuthor = noticia.autor === adminEmail;
+                let buttonsHtml = '';
+                if (isMasterAdmin || isAuthor) {
+                    buttonsHtml = `
+                        <button class="btn btn-sm btn-outline-primary edit-news-btn" data-id="${noticia.id}">Editar</button>
+                        <button class="btn btn-danger btn-sm delete-btn" data-id="${noticia.id}">Excluir</button>
+                    `;
+                }
+
                 container.innerHTML += `
                     <div class="d-flex justify-content-between align-items-center p-3 mb-2 card">
                         <p class="m-0">${noticia.titulo}</p>
-                        <div>
-                            <button class="btn btn-sm btn-outline-primary edit-news-btn" data-id="${noticia.id}">Editar</button>
-                            <button class="btn btn-danger btn-sm delete-btn" data-id="${noticia.id}">Excluir</button>
-                        </div>
+                        <div>${buttonsHtml}</div>
                     </div>
                 `;
             });
+
             document.querySelectorAll('.delete-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
                     const id = e.target.getAttribute('data-id');
@@ -414,14 +433,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('curriculo-list-admin');
         if (container) {
             container.innerHTML = '';
+            const adminRole = localStorage.getItem('adminRole');
+            const isMasterAdmin = adminRole === 'MASTER_ADMIN';
+
             listaCurriculo.forEach(periodo => {
+                let buttonsHtml = '';
+                if (isMasterAdmin) {
+                    buttonsHtml = `
+                        <button class="btn btn-sm btn-outline-primary edit-periodo-btn" data-id="${periodo.id}">Editar</button>
+                        <button class="btn btn-danger btn-sm delete-periodo-btn" data-id="${periodo.id}">Excluir</button>
+                    `;
+                }
                 container.innerHTML += `
                     <div class="d-flex justify-content-between align-items-center p-3 mb-2 card">
                         <p class="m-0">${periodo.nome}</p>
-                        <div>
-                            <button class="btn btn-sm btn-outline-primary edit-periodo-btn" data-id="${periodo.id}">Editar</button>
-                            <button class="btn btn-danger btn-sm delete-periodo-btn" data-id="${periodo.id}">Excluir</button>
-                        </div>
+                        <div>${buttonsHtml}</div>
                     </div>
                 `;
             });
@@ -458,7 +484,7 @@ document.addEventListener('DOMContentLoaded', () => {
             imageInput.style.display = 'none';
             imagePreview.innerHTML = `
                 <div class="position-relative d-inline-block">
-                    <img src="http://localhost:8080${noticia.imagem}" class="img-fluid rounded" alt="Pré-visualização da imagem de destaque">
+                    <img src="${noticia.imagem}" class="img-fluid rounded" alt="Pré-visualização da imagem de destaque">
                     <button type="button" class="btn btn-danger btn-sm position-absolute top-0 start-100 translate-middle rounded-circle" id="remove-image-btn">
                         <i class="fas fa-times"></i>
                     </button>
@@ -474,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
             imagePreview.innerHTML = '';
         }
     };
-    
+
     const resetNewsForm = () => {
         const newsForm = document.getElementById('news-form');
         const trixEditor = document.querySelector('trix-editor');
@@ -598,11 +624,11 @@ document.addEventListener('DOMContentLoaded', () => {
             carregarNoticiaPorId(noticiaId).then(noticia => {
                 if (noticia) {
                     const container = document.getElementById('noticia-completa-container');
-                    const imagemHtml = noticia.imagem ? `<img src="http://localhost:8080${noticia.imagem}" class="img-fluid rounded mb-4" alt="Imagem da notícia" >` : '';
+                    const imagemHtml = noticia.imagem ? `<img src="${noticia.imagem}" class="img-fluid rounded mb-4" alt="Imagem da notícia" >` : '';
 
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = noticia.texto;
-                    
+
                     const captions = tempDiv.querySelectorAll('.attachment__caption');
                     captions.forEach(caption => {
                         caption.remove();
@@ -633,8 +659,8 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                             <div class="col-12">
                                 <h1 class="display-4">${noticia.titulo}</h1>
-                                <p class="text-muted">Publicado por ${noticia.autor} em ${new Date(noticia.data).toLocaleDateString()}</p>
-                                
+                                <p class="textoo-mutedd" style="color: var();">Publicado por ${noticia.autor} em ${new Date(noticia.data).toLocaleDateString()}</p>
+
                                 <div id="share-buttons" class="mb-4 d-flex flex-wrap align-items-center gap-2">
                                     <p class="m-0 align-self-center me-2">Compartilhe:</p>
                                     <a href="#" class="btn btn-success" data-share-platform="whatsapp"><i class="fab fa-whatsapp"></i></a>
@@ -647,7 +673,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                         </div>
                     `;
-                    
+
                     const galleryContainer = document.querySelector('.lead');
                     if (galleryContainer) {
                         galleryContainer.addEventListener('click', (event) => {
@@ -683,17 +709,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Declaração de variáveis
     const loginForm = document.getElementById('login-form');
     const adminPanel = document.getElementById('admin-panel');
-    const loginContainer = document.getElementById('login-container');
     const newsForm = document.getElementById('news-form');
     const curriculoForm = document.getElementById('curriculo-form');
     const keyForm = document.getElementById('key-form');
-    const btnRequestKey = document.getElementById('request-key-btn');
+    const requestAccessForm = document.getElementById('request-access-form');
+
+    // Novo botão para abrir o modal de perfil
+    const openProfileModalBtn = document.getElementById('open-profile-modal-btn');
+
+    // Botões do perfil (dentro do modal)
     const logoutBtn = document.getElementById('logout-btn');
     const changePasswordBtn = document.getElementById('change-password-btn');
     const deleteAccountBtn = document.getElementById('delete-account-btn');
+
     const changePasswordForm = document.getElementById('change-password-form');
     const deleteAccountForm = document.getElementById('delete-account-form');
 
+    // Painel Master Admin
+    const manageRequestsBtn = document.getElementById('manage-requests-btn');
+    const backToDashboardBtn = document.getElementById('back-to-dashboard-btn');
+    const dashboardContent = document.getElementById('dashboard-content');
+    const requestsManagement = document.getElementById('requests-management');
 
     // Funções do Admin Panel
     const loadAdminPanelContent = async () => {
@@ -701,16 +737,186 @@ document.addEventListener('DOMContentLoaded', () => {
         renderizarNoticiasAdmin(noticiasParaAdmin);
         const curriculoParaAdmin = await carregarCurriculoDoBackend();
         renderizarCurriculoAdmin(curriculoParaAdmin);
-        
+
         const adminName = localStorage.getItem('adminName');
+        const adminRole = localStorage.getItem('adminRole');
+
         if (adminName) {
             document.getElementById('admin-name').textContent = adminName;
+        }
+
+        // Mostra o botão "Gerenciar Admins" apenas se a role for MASTER_ADMIN
+        if (adminRole === 'MASTER_ADMIN') {
+            manageRequestsBtn.classList.remove('d-none');
+            backToDashboardBtn.classList.add('d-none');
+        } else {
+            manageRequestsBtn.classList.add('d-none');
+            backToDashboardBtn.classList.add('d-none');
         }
 
         if (adminPanel) {
             adminPanel.classList.remove('d-none');
         }
     };
+
+    const carregarSolicitacoesDeAdmin = async () => {
+        const requestsList = document.getElementById('requests-list');
+        const noRequestsMessage = document.getElementById('no-requests-message');
+        const token = localStorage.getItem('jwtToken');
+
+        if (!token) {
+            requestsList.innerHTML = `<p class="text-danger">Acesso negado. Faça o login como Master Admin.</p>`;
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:8080/api/auth/requests', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!response.ok) {
+                throw new Error('Falha ao carregar solicitações.');
+            }
+            const requests = await response.json();
+
+            requestsList.innerHTML = '';
+            if (requests.length === 0) {
+                noRequestsMessage.classList.remove('d-none');
+            } else {
+                noRequestsMessage.classList.add('d-none');
+                requests.forEach(request => {
+                    requestsList.innerHTML += `
+                    <div class="card p-3 mb-3 card-request">
+                        <div>
+                            <p class="mb-1"><strong>E-mail:</strong> ${request.email}</p>
+                            <small class="text-muted">Solicitado em: ${new Date(request.requestDate).toLocaleDateString()}</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-success btn-sm me-2 approve-btn" data-id="${request.id}">Aprovar</button>
+                            <button class="btn btn-danger btn-sm reject-btn" data-id="${request.id}">Rejeitar</button>
+                        </div>
+                    </div>
+                `;
+                });
+
+                document.querySelectorAll('.approve-btn').forEach(button => {
+                    button.addEventListener('click', (e) => showAdminRequestConfirmation(e.target.dataset.id, 'approve'));
+                });
+                document.querySelectorAll('.reject-btn').forEach(button => {
+                    button.addEventListener('click', (e) => showAdminRequestConfirmation(e.target.dataset.id, 'reject'));
+                });
+            }
+        } catch (error) {
+            console.error('Erro ao carregar solicitações:', error);
+            showMessage('Erro ao carregar solicitações. Verifique o console.', 'error');
+        }
+    };
+
+    const showAdminRequestConfirmation = (id, action) => {
+        return new Promise((resolve) => {
+            const modalOverlay = document.getElementById('admin-request-modal');
+            const confirmationMessage = document.getElementById('admin-request-message');
+            const confirmButton = document.getElementById('admin-confirm-button');
+            const cancelButton = document.getElementById('admin-cancel-button');
+
+            const message = action === 'approve'
+                ? 'Tem certeza que deseja aprovar esta solicitação?'
+                : 'Tem certeza que deseja rejeitar esta solicitação?';
+
+            const confirmButtonClass = action === 'approve' ? 'btn-success' : 'btn-danger';
+            confirmButton.classList.remove('btn-success', 'btn-danger');
+            confirmButton.classList.add(confirmButtonClass);
+
+            confirmationMessage.textContent = message;
+            modalOverlay.classList.remove('d-none');
+            setTimeout(() => modalOverlay.classList.add('visible'), 10);
+
+            const handleConfirm = () => {
+                modalOverlay.classList.remove('visible');
+                setTimeout(() => modalOverlay.classList.add('d-none'), 300);
+                removeListeners();
+                resolve(true);
+                if (action === 'approve') {
+                    aprovarSolicitacao(id);
+                } else {
+                    rejeitarSolicitacao(id);
+                }
+            };
+
+            const handleCancel = () => {
+                modalOverlay.classList.remove('visible');
+                setTimeout(() => modalOverlay.classList.add('d-none'), 300);
+                removeListeners();
+                resolve(false);
+            };
+
+            const removeListeners = () => {
+                confirmButton.removeEventListener('click', handleConfirm);
+                cancelButton.removeEventListener('click', handleCancel);
+                modalOverlay.removeEventListener('click', handleOverlayClick);
+            };
+
+            const handleOverlayClick = (e) => {
+                if (e.target === modalOverlay) {
+                    handleCancel();
+                }
+            };
+
+            confirmButton.addEventListener('click', handleConfirm);
+            cancelButton.addEventListener('click', handleCancel);
+            modalOverlay.addEventListener('click', handleOverlayClick);
+        });
+    };
+
+    const aprovarSolicitacao = async (id) => {
+        const token = localStorage.getItem('jwtToken');
+        if (!token) {
+            showMessage("Token não encontrado.", "error");
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/auth/requests/approve/${id}`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (response.ok) {
+                showMessage(data.message, 'success');
+                carregarSolicitacoesDeAdmin();
+            } else {
+                showMessage(data.error || 'Falha ao aprovar a solicitação.', 'error');
+            }
+        } catch (error) {
+            console.error('Erro na aprovação:', error);
+            showMessage('Erro de conexão ao aprovar a solicitação.', 'error');
+        }
+    };
+
+    const rejeitarSolicitacao = async (id) => {
+        const token = localStorage.getItem('jwtToken');
+        if (!token) {
+            showMessage("Token não encontrado.", "error");
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/auth/requests/reject/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (response.ok) {
+                showMessage(data.message, 'success');
+                carregarSolicitacoesDeAdmin();
+            } else {
+                showMessage(data.error || 'Falha ao rejeitar a solicitação.', 'error');
+            }
+        } catch (error) {
+            console.error('Erro na rejeição:', error);
+            showMessage('Erro de conexão ao rejeitar a solicitação.', 'error');
+        }
+    };
+
 
     const checkAuthAndRedirect = () => {
         const isLoggedIn = localStorage.getItem('isAuthenticated') === 'true';
@@ -722,9 +928,11 @@ document.addEventListener('DOMContentLoaded', () => {
             loadAdminPanelContent();
         } else if (currentPage === 'admin-login.html' && isLoggedIn) {
             window.location.href = 'admin.html';
+        } else if (currentPage === 'admin-requests.html' && isLoggedIn) {
+            carregarSolicitacoesDeAdmin();
         }
     };
-    
+
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -746,6 +954,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         localStorage.setItem('isAuthenticated', 'true');
                         localStorage.setItem('adminName', data.adminName);
                         localStorage.setItem('adminEmail', username);
+                        localStorage.setItem('jwtToken', data.token);
+                        localStorage.setItem('adminRole', data.adminRole);
                         showMessage('Login realizado com sucesso!', 'success');
                         setTimeout(() => window.location.href = 'admin.html', 1500);
                     }
@@ -759,21 +969,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('isAuthenticated');
-            localStorage.removeItem('adminName');
-            localStorage.removeItem('adminEmail');
-            window.location.href = 'admin-login.html';
+    if (openProfileModalBtn) {
+        openProfileModalBtn.addEventListener('click', () => {
+            const profileModal = new bootstrap.Modal(document.getElementById('profileModal'));
+            profileModal.show();
         });
     }
-    
+
     if (changePasswordBtn) {
         changePasswordBtn.addEventListener('click', () => {
-            const adminEmail = localStorage.getItem('adminEmail');
-            if (!adminEmail) {
-                showMessage("Você precisa estar logado para alterar a senha.", "error");
-                return;
+            const profileModal = bootstrap.Modal.getInstance(document.getElementById('profileModal'));
+            if (profileModal) {
+                profileModal.hide();
             }
             const changePasswordModal = new bootstrap.Modal(document.getElementById('changePasswordModal'));
             changePasswordModal.show();
@@ -782,13 +989,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (deleteAccountBtn) {
         deleteAccountBtn.addEventListener('click', () => {
-            const adminEmail = localStorage.getItem('adminEmail');
-            if (!adminEmail) {
-                showMessage("Você precisa estar logado para excluir a conta.", "error");
-                return;
+            const profileModal = bootstrap.Modal.getInstance(document.getElementById('profileModal'));
+            if (profileModal) {
+                profileModal.hide();
             }
             const deleteAccountModal = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
             deleteAccountModal.show();
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'admin-login.html';
         });
     }
 
@@ -805,15 +1018,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const adminEmail = localStorage.getItem('adminEmail');
-            if (!adminEmail) {
-                showMessage("E-mail do administrador não encontrado. Faça o login novamente.", "error");
+            const token = localStorage.getItem('jwtToken');
+            if (!adminEmail || !token) {
+                showMessage("Sessão expirada. Faça o login novamente.", "error");
                 return;
             }
 
             try {
                 const response = await fetch('http://localhost:8080/api/auth/change-password', {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify({ email: adminEmail, currentPassword, newPassword })
                 });
 
@@ -832,23 +1049,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
+
     if (deleteAccountForm) {
         deleteAccountForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const password = document.getElementById('delete-password').value;
-
             const confirmed = await showConfirmation('Tem certeza que deseja excluir sua conta? Esta ação é irreversível.');
+
             if (confirmed) {
                 const adminEmail = localStorage.getItem('adminEmail');
-                if (!adminEmail) {
-                    showMessage("E-mail do administrador não encontrado. Faça o login novamente.", "error");
+                const token = localStorage.getItem('jwtToken');
+                if (!adminEmail || !token) {
+                    showMessage("Sessão expirada. Faça o login novamente.", "error");
                     return;
                 }
                 try {
                     const response = await fetch('http://localhost:8080/api/auth/delete-account', {
                         method: 'DELETE',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
                         body: JSON.stringify({ email: adminEmail, password })
                     });
 
@@ -869,30 +1090,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (btnRequestKey) {
-        btnRequestKey.addEventListener('click', async () => {
-            const solicitanteEmail = document.getElementById('email-cad-admin').value;
-            
+    if (requestAccessForm) {
+        requestAccessForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const solicitanteEmail = document.getElementById('email-solicitante').value;
+
             if (!solicitanteEmail) {
                 showMessage('Por favor, insira o seu e-mail para solicitar a chave.', 'error');
                 return;
             }
 
             try {
-                const response = await fetch('http://localhost:8080/api/auth/request-key', {
+                const response = await fetch('http://localhost:8080/api/auth/request-access', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: solicitanteEmail })
                 });
-                
+
                 const data = await response.json();
                 if (response.ok) {
                     showMessage(data.message, 'success');
                 } else {
-                    showMessage(data.error || 'Erro ao solicitar a chave.', 'error');
+                    showMessage(data.error || 'Erro ao solicitar o acesso.', 'error');
                 }
             } catch (error) {
-                console.error('Erro ao solicitar a chave:', error);
+                console.error('Erro ao solicitar acesso:', error);
                 showMessage('Não foi possível conectar ao servidor.', 'error');
             }
         });
@@ -912,7 +1134,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMessage('As senhas não coincidem!', 'error');
                 return;
             }
-            
+
             try {
                 const response = await fetch('http://localhost:8080/api/auth/register-admin', {
                     method: 'POST',
@@ -925,7 +1147,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(() => window.location.href = 'admin-login.html', 2500);
                 } else {
                     const error = await response.json();
-                    showMessage(error.error || 'Erro ao cadastrar administrador.', 'error');
+                    showMessage(error.error || 'Falha ao cadastrar administrador.', 'error');
                 }
             } catch (error) {
                 console.error('Erro no cadastro:', error);
@@ -942,11 +1164,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const titulo = document.getElementById('titulo-noticia').value;
             const texto = trixEditor.value;
             const file = document.getElementById('imagem-noticia').files[0];
-            const btnSubmit = document.getElementById('btn-submit-news');
             const autor = localStorage.getItem('adminName');
+            const token = localStorage.getItem('jwtToken');
 
-            if (!autor) {
-                showMessage("Não foi possível identificar o autor da notícia. Faça o login novamente.", "error");
+            if (!autor || !token) {
+                showMessage("Sessão expirada. Faça o login novamente.", "error");
                 return;
             }
 
@@ -958,6 +1180,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const uploadResponse = await fetch('http://localhost:8080/api/upload', {
                         method: 'POST',
                         body: formData,
+                        headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (!uploadResponse.ok) {
                         const errorBody = await uploadResponse.json();
@@ -982,7 +1205,10 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch(url, {
                     method: method,
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify(novaNoticia),
                 });
                 if (response.ok) {
@@ -990,6 +1216,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     resetNewsForm();
                     const noticiasAtualizadas = await carregarNoticiasDoBackend();
                     renderizarNoticiasAdmin(noticiasAtualizadas);
+                } else if (response.status === 403) {
+                    showMessage('Você não tem permissão para editar esta notícia.', 'error');
                 } else {
                     const errorBody = await response.json();
                     throw new Error(errorBody.error || 'Falha ao adicionar a notícia.');
@@ -1010,7 +1238,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 .split('\n')
                 .map(d => d.trim())
                 .filter(d => d);
-            const btnSubmit = document.getElementById('btn-submit-curriculo');
+            const token = localStorage.getItem('jwtToken');
+
+            if (!token) {
+                showMessage("Sessão expirada. Faça o login novamente.", "error");
+                return;
+            }
 
             const novoPeriodo = { id: periodoId || null, nome, disciplinas };
             const method = periodoId ? 'PUT' : 'POST';
@@ -1019,17 +1252,22 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch(url, {
                     method: method,
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify(novoPeriodo),
                 });
                 if (response.ok) {
                     showMessage('Grade Curricular salva com sucesso!', 'success');
                     curriculoForm.reset();
                     document.getElementById('periodo-id').value = '';
-                    btnSubmit.textContent = 'Adicionar Período';
+                    document.getElementById('btn-submit-curriculo').textContent = 'Adicionar Período';
                     const curriculoAtualizado = await carregarCurriculoDoBackend();
                     renderizarCurriculoAdmin(curriculoAtualizado);
                     renderizarTabelaCurriculo(curriculoAtualizado);
+                } else if (response.status === 403) {
+                    showMessage('Você não tem permissão para editar a grade curricular.', 'error');
                 } else {
                     const errorBody = await response.json();
                     throw new Error(errorBody.error || 'Falha ao salvar a grade curricular.');
@@ -1063,30 +1301,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleTrixAttachment = async (event) => {
         const attachment = event.attachment;
         const file = attachment.file;
-    
+        const token = localStorage.getItem('jwtToken');
+
         if (file && file.type.startsWith('image/')) {
             const formData = new FormData();
             formData.append('file', file);
-    
+
             try {
                 const response = await fetch('http://localhost:8080/api/upload', {
                     method: 'POST',
                     body: formData,
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
-    
+
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || 'Falha no upload da imagem.');
                 }
-    
+
                 const uploadResult = await response.json();
-                const imageUrl = `http://localhost:8080${uploadResult.url}`;
-    
+                const imageUrl = uploadResult.url;
+
                 attachment.setAttributes({
                     url: imageUrl,
                     href: imageUrl
                 });
-    
+
             } catch (error) {
                 console.error('Erro ao fazer upload do anexo:', error);
                 showMessage(`Erro ao anexar a imagem: ${error.message}`, 'error');
@@ -1094,9 +1334,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     };
-    
+
     inicializarTrixUploader();
-    
+
     function createModal(imageUrl) {
         const modalOverlay = document.createElement('div');
         modalOverlay.classList.add('modal-overlay');
@@ -1123,6 +1363,26 @@ document.addEventListener('DOMContentLoaded', () => {
             modalOverlay.remove();
         }
     }
-    
+
+    // Lógica para alternar entre os painéis de admin
+    if (manageRequestsBtn) {
+        manageRequestsBtn.addEventListener('click', () => {
+            dashboardContent.classList.add('d-none');
+            requestsManagement.classList.remove('d-none');
+            manageRequestsBtn.classList.add('d-none');
+            backToDashboardBtn.classList.remove('d-none');
+            carregarSolicitacoesDeAdmin();
+        });
+    }
+
+    if (backToDashboardBtn) {
+        backToDashboardBtn.addEventListener('click', () => {
+            dashboardContent.classList.remove('d-none');
+            requestsManagement.classList.add('d-none');
+            manageRequestsBtn.classList.remove('d-none');
+            backToDashboardBtn.classList.add('d-none');
+        });
+    }
+
     checkAuthAndRedirect();
 });
