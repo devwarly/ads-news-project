@@ -16,8 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Lógica de Temas ---
-    // --- Lógica de Temas ---
-// --- Lógica de Temas ---
     const themeToggle = document.getElementById('theme');
     const body = document.body;
     const logoImg = document.getElementById('logo-img');
@@ -172,9 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
         themeToggle.addEventListener('change', toggleTheme);
     }
 
-    // ESTA LINHA É A MAIS IMPORTANTE
-    // Ela garante que o tema salvo no navegador seja carregado imediatamente
-    // ao carregar qualquer página
     loadTheme();
 
     const ICONS = {
@@ -191,7 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(wrapper);
         }
 
-        // Se já houver uma mensagem, remove a antiga para evitar sobreposição
         if (wrapper.children.length > 0) {
             wrapper.innerHTML = '';
         }
@@ -199,14 +193,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageContainer = document.createElement('div');
         messageContainer.classList.add('custom-message', `custom-message--${type}`);
 
-        // Cria o ícone
         const iconContainer = document.createElement('div');
         iconContainer.classList.add('message-icon');
         const icon = document.createElement('i');
         icon.className = ICONS[type] || ICONS.info;
         iconContainer.appendChild(icon);
 
-        // Cria o conteúdo de texto
         const contentContainer = document.createElement('div');
         contentContainer.classList.add('message-content');
         const textSpan = document.createElement('span');
@@ -214,25 +206,20 @@ document.addEventListener('DOMContentLoaded', () => {
         textSpan.textContent = message;
         contentContainer.appendChild(textSpan);
 
-        // Adiciona o ícone e o texto ao contêiner da mensagem
         messageContainer.appendChild(iconContainer);
         messageContainer.appendChild(contentContainer);
 
         wrapper.appendChild(messageContainer);
 
-        // Força o reflow para garantir a animação de entrada
         void messageContainer.offsetWidth;
 
-        // Inicia a animação de entrada
         messageContainer.classList.add('show');
 
-        // Define o tempo para a mensagem desaparecer
         setTimeout(() => {
             messageContainer.classList.remove('show');
             messageContainer.classList.add('hide');
         }, duration);
 
-        // Remove a mensagem do DOM após a animação de saída
         messageContainer.addEventListener('animationend', (event) => {
             if (event.animationName === 'slideOutUp') {
                 messageContainer.remove();
@@ -814,7 +801,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('admin-name').textContent = adminName;
         }
 
-        // Mostra o botão "Gerenciar Admins" apenas se a role for MASTER_ADMIN
         if (adminRole === 'MASTER_ADMIN') {
             manageRequestsBtn.classList.remove('d-none');
             backToDashboardBtn.classList.add('d-none');
@@ -991,7 +977,6 @@ document.addEventListener('DOMContentLoaded', () => {
             hideLoading();
         }
     };
-
 
     const checkAuthAndRedirect = () => {
         const isLoggedIn = localStorage.getItem('isAuthenticated') === 'true';
@@ -1477,6 +1462,64 @@ document.addEventListener('DOMContentLoaded', () => {
             requestsManagement.classList.add('d-none');
             manageRequestsBtn.classList.remove('d-none');
             backToDashboardBtn.classList.add('d-none');
+        });
+    }
+    
+    // --- Lógica do formulário de inscrição (NOVO) ---
+    const subscribeForm = document.getElementById('subscribe-form');
+    if (subscribeForm) {
+        subscribeForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoading();
+            const email = document.getElementById('subscribe-email').value;
+
+            try {
+                const response = await fetch('http://localhost:8080/api/subscription/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage(data.message, 'success');
+                } else {
+                    showMessage(data.error || 'Erro ao se inscrever.', 'error');
+                }
+            } catch (error) {
+                console.error('Erro na requisição de inscrição:', error);
+                showMessage('Não foi possível conectar ao servidor.', 'error');
+            } finally {
+                hideLoading();
+            }
+        });
+    }
+
+    // --- Lógica do formulário de cancelamento (NOVO) ---
+    const unsubscribeForm = document.getElementById('unsubscribe-form');
+    if (unsubscribeForm) {
+        unsubscribeForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoading();
+            const email = document.getElementById('unsubscribe-email').value;
+
+            try {
+                const response = await fetch('http://localhost:8080/api/subscription/unsubscribe', {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage(data.message, 'success');
+                } else {
+                    showMessage(data.error || 'Erro ao cancelar a inscrição.', 'error');
+                }
+            } catch (error) {
+                console.error('Erro na requisição de cancelamento:', error);
+                showMessage('Não foi possível conectar ao servidor.', 'error');
+            } finally {
+                hideLoading();
+            }
         });
     }
 

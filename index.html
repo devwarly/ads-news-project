@@ -17,6 +17,7 @@
 
     <link style="border-radius: 50%;" rel="icon" type="image/png" href="img/LogoAds.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="styles/app.css">
 
 </head>
@@ -57,19 +58,20 @@
                         <li class="nav-item ms-lg-3">
                             <label for="theme" class="theme">
                                 <span class="theme__toggle-wrap">
-                                  <input id="theme" class="theme__toggle" type="checkbox" role="switch" name="theme" value="dark">
-                                  <span class="theme__fill"></span>
-                                  <span class="theme__icon">
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                  </span>
+                                    <input id="theme" class="theme__toggle" type="checkbox" role="switch" name="theme"
+                                        value="dark">
+                                    <span class="theme__fill"></span>
+                                    <span class="theme__icon">
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                    </span>
                                 </span>
                             </label>
                         </li>
@@ -93,13 +95,8 @@
                     <button class="super-button">
                         <span>Sobre o Curso</span>
                         <svg fill="none" viewBox="0 0 24 24" class="arrow">
-                          <path
-                            stroke-linejoin="round"
-                            stroke-linecap="round"
-                            stroke-width="2"
-                            stroke="currentColor"
-                            d="M5 12h14M13 6l6 6-6 6"
-                          ></path>
+                            <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2" stroke="currentColor"
+                                d="M5 12h14M13 6l6 6-6 6"></path>
                         </svg>
                     </button>
                 </a>
@@ -164,7 +161,7 @@
             </div>
         </section>
 
-        <section class="content-section bg-light">
+        <section class="content-section">
             <div class="container">
                 <div class="section-heading">
                     <h2>O que nossos alunos dizem</h2>
@@ -180,6 +177,65 @@
                     </div>
                 </div>
             </div>
+        </section>
+
+        <section
+            style="padding: 20px; align-items: center; margin-bottom: 0 !important; padding-bottom: 0; text-align: center;">
+
+            <form id="subscribe-form" class="form">
+                <p class="form-title">Receber Informações por Email</p>
+                <div class="input-container">
+                    <input id="subscribe-nome" type="text" placeholder="Nome">
+                </div>
+                <div class="input-container">
+                    <input id="subscribe-email" type="email" placeholder="email" required>
+                    <span></span>
+                    <div id="message-container" style="margin-top: 20px; text-align: center;"></div>
+                </div>
+                <button type="submit" id="subscribe-btn" class="notifique-btn">
+                    NOTIFIQUE-ME<i class="bi bi-bell-fill"></i>
+                </button>
+                <p class="signup-link">
+                    Parar de receber emails?
+                    <a href="#unsubscribe-form" id="show-unsubscribe-form-link">clique aqui</a>
+                </p>
+            </form>
+
+            <br>
+
+            <form id="unsubscribe-form" class="form d-none">
+                <button class="button" id="close-unsubscribe-form">
+                    <div class="button-box">
+                        <span class="button-elem">
+                            <svg viewBox="0 0 46 40" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M46 20.038c0-.7-.3-1.5-.8-2.1l-16-17c-1.1-1-3.2-1.4-4.4-.3-1.2 1.1-1.2 3.3 0 4.4l11.3 11.9H3c-1.7 0-3 1.3-3 3s1.3 3 3 3h33.1l-11.3 11.9c-1 1-1.2 3.3 0 4.4 1.2 1.1 3.3.8 4.4-.3l16-17c.5-.5.8-1.1.8-1.9z">
+                                </path>
+                            </svg>
+                        </span>
+                        <span class="button-elem">
+                            <svg viewBox="0 0 46 40">
+                                <path
+                                    d="M46 20.038c0-.7-.3-1.5-.8-2.1l-16-17c-1.1-1-3.2-1.4-4.4-.3-1.2 1.1-1.2 3.3 0 4.4l11.3 11.9H3c-1.7 0-3 1.3-3 3s1.3 3 3 3h33.1l-11.3 11.9c-1 1-1.2 3.3 0 4.4 1.2 1.1 3.3.8 4.4-.3l16-17c.5-.5.8-1.1.8-1.9z">
+                                </path>
+                            </svg>
+                        </span>
+                    </div>
+                </button>
+
+                <p class="form-title">Email que você quer que pare de receber notificações</p>
+                <div class="input-container">
+                    <input id="unsubscribe-email" type="email" placeholder="email" required>
+                    <span></span>
+                    <div style="margin-top: 5px;" id="message-container">
+                        <p>Email ja inscrito</p>
+                    </div>
+                </div>
+                <button type="submit" id="unsubscribe-btn" class="notifique-btn">
+                    CONFIRMAR
+                </button>
+            </form>
+
         </section>
     </main>
 
@@ -252,6 +308,41 @@
 
     <script src="static/script.js"></script>
     <script src="static/appCuriosidades.js"></script>
+    <script>
+        // Lógica para alternar a visibilidade dos formulários (fica no HTML)
+        document.addEventListener('DOMContentLoaded', () => {
+            const subscribeForm = document.getElementById('subscribe-form');
+            const unsubscribeForm = document.getElementById('unsubscribe-form');
+            const showUnsubscribeLink = document.getElementById('show-unsubscribe-form-link');
+            const closeUnsubscribeBtn = document.getElementById('close-unsubscribe-form');
+
+            // Função para fechar o formulário de cancelamento
+            function closeUnsubscribeForm() {
+                if (unsubscribeForm && subscribeForm) {
+                    unsubscribeForm.classList.add('d-none');
+                    subscribeForm.classList.remove('d-none');
+                }
+            }
+
+            // Oculta o formulário de inscrição e mostra o de cancelamento
+            if (showUnsubscribeLink) {
+                showUnsubscribeLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (subscribeForm && unsubscribeForm) {
+                        subscribeForm.classList.add('d-none');
+                        unsubscribeForm.classList.remove('d-none');
+                    }
+                });
+            }
+
+            // Oculta o formulário de cancelamento e mostra o de inscrição
+            if (closeUnsubscribeBtn) {
+                closeUnsubscribeBtn.addEventListener('click', () => {
+                    closeUnsubscribeForm();
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
