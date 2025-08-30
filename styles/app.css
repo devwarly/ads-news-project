@@ -243,11 +243,11 @@
   position: relative;
 }
 
-.input-container input,
-.form button {
+.input-container input{
   outline: none;
   border: 1px solid var(--text-color-list);
   margin: 8px 0;
+  color: var(--text-color-list);
 }
 
 .input-container input {
