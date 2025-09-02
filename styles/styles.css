@@ -12,6 +12,7 @@
     --border-color: #e9ecef;
     --shadow-color: rgba(0, 0, 0, 0.08);
     --input: #f1f1f1;
+    --imput-ars: #c7dcecf5;
 
     --text-color-main: #212529;
     --text-color-heading: var(--primary-color);
@@ -43,6 +44,7 @@
     --border-color: #333333;
     --shadow-color: rgba(0, 0, 0, 0.4);
     --input: #101418;
+    --imput-ars: #1e2329;
 
     --text-color-main: #e0e0e0;
     --text-color-heading: var(--primary-color);
@@ -60,6 +62,13 @@
     --footer-link-hover-color: #00ffff;
     --footer-social-color: #ffffff;
     --footer-social-hover-color: #09bdb4;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--imput-ars) inset !important;
+  -webkit-text-fill-color: var(--text-color-list) !important;
 }
 
 

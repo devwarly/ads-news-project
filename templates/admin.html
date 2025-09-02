@@ -12,7 +12,7 @@
     <link rel="icon" type="image/x-icon" href="../img/LogoAds.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
-    
+
 </head>
 
 <body class="
@@ -40,7 +40,7 @@
                             <a class="nav-link" href="sobre_o_curso.html">Sobre o Curso</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="atletica_compilada.html">Atlética</a>
+                            <a class="nav-link" href="atletica.html">Atlética</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="todas_noticias.html">Notícias</a>
@@ -51,19 +51,20 @@
                         <li class="nav-item ms-lg-3">
                             <label for="theme" class="theme">
                                 <span class="theme__toggle-wrap">
-                                  <input id="theme" class="theme__toggle" type="checkbox" role="switch" name="theme" value="dark">
-                                  <span class="theme__fill"></span>
-                                  <span class="theme__icon">
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                    <span class="theme__icon-part"></span>
-                                  </span>
+                                    <input id="theme" class="theme__toggle" type="checkbox" role="switch" name="theme"
+                                        value="dark">
+                                    <span class="theme__fill"></span>
+                                    <span class="theme__icon">
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                        <span class="theme__icon-part"></span>
+                                    </span>
                                 </span>
                             </label>
                         </li>
@@ -130,7 +131,17 @@
                                         data-trix-attachments-disabled></trix-editor>
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100" id="btn-submit-news">Adicionar
-                                    Notícia</button>
+                                    Notícia
+                                </button>
+
+                                <div class="mb-3">
+                                    <label for="categoria-noticia" class="form-label">Categoria</label>
+                                    <select class="form-select" id="categoria-noticia" required>
+                                        <option value="geral">Geral</option>
+                                        <option value="atletica">Atlética</option>
+                                    </select>
+                                </div>
+
                             </form>
                         </div>
                     </div>

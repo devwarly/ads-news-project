@@ -119,10 +119,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let logoPathLight = 'img/2.png';
         let logoPathDark = 'img/1.png';
 
-        // Ajuste os caminhos se as páginas estiverem em uma subpasta
         if (window.location.pathname.includes('/templates/')) {
             logoPathLight = '../img/2.png';
             logoPathDark = '../img/1.png';
+        } else if (window.location.pathname.endsWith('/')) {
+            logoPathLight = 'img/2.png';
+            logoPathDark = 'img/1.png';
         }
 
         if (savedTheme === 'dark') {
@@ -270,10 +272,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const carregarNoticiasDoBackend = async () => {
+    const carregarNoticiasDoBackend = async (categoria) => {
         showLoading();
         try {
-            const response = await fetch('http://localhost:8080/api/noticias');
+            const url = categoria ? `http://localhost:8080/api/noticias?categoria=${categoria}` : 'http://localhost:8080/api/noticias';
+            const response = await fetch(url);
             if (!response.ok) {
                 throw new Error('Erro ao buscar notícias do servidor.');
             }
@@ -385,6 +388,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById(containerId);
         if (container) {
             container.innerHTML = '';
+            if (listaNoticias.length === 0) {
+                container.innerHTML = `<p class="lead text-center">Nenhuma notícia encontrada.</p>`;
+                return;
+            }
             listaNoticias.forEach(noticia => {
                 const imagemHtml = noticia.imagem ? `<img src="${noticia.imagem}" class="card-img-top" alt="Imagem da notícia">` : '';
 
@@ -423,12 +430,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('noticias-list-admin');
         if (container) {
             container.innerHTML = '';
-            const adminEmail = localStorage.getItem('adminEmail');
+            const adminName = localStorage.getItem('adminName');
             const adminRole = localStorage.getItem('adminRole');
             const isMasterAdmin = adminRole === 'MASTER_ADMIN';
 
             listaNoticias.forEach(noticia => {
-                const isAuthor = noticia.autor === adminEmail;
+                const isAuthor = noticia.autor === adminName;
                 let buttonsHtml = '';
                 if (isMasterAdmin || isAuthor) {
                     buttonsHtml = `
@@ -439,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 container.innerHTML += `
                     <div class="d-flex justify-content-between align-items-center p-3 mb-2 card">
-                        <p class="m-0">${noticia.titulo}</p>
+                        <p class="m-0">${noticia.titulo} <small class="text-muted">(${noticia.categoria})</small></p>
                         <div>${buttonsHtml}</div>
                     </div>
                 `;
@@ -528,6 +535,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const preencherFormularioNoticia = (noticia) => {
         document.getElementById('noticia-id').value = noticia.id;
         document.getElementById('titulo-noticia').value = noticia.titulo;
+        document.getElementById('categoria-noticia').value = noticia.categoria || 'geral'; // Define a categoria
         document.getElementById('btn-submit-news').textContent = 'Salvar Edição';
 
         const trixEditor = document.querySelector('trix-editor');
@@ -567,6 +575,7 @@ document.addEventListener('DOMContentLoaded', () => {
         newsForm.reset();
         trixEditor.value = '';
         document.getElementById('noticia-id').value = '';
+        document.getElementById('categoria-noticia').value = 'geral'; // Reseta a categoria
         btnSubmit.textContent = 'Adicionar Notícia';
         imageInput.style.display = 'block';
         imagePreview.innerHTML = '';
@@ -658,16 +667,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // ATUALIZADO: Buscar apenas notícias gerais para a página principal
     if (document.getElementById('noticias-container')) {
-        carregarNoticiasDoBackend().then(noticias => {
+        carregarNoticiasDoBackend('geral').then(noticias => {
             if (noticias.length > 0) {
                 renderizarNoticias('noticias-container', noticias.slice(0, 3));
             }
         });
     }
 
+    // ATUALIZADO: Buscar apenas notícias gerais para a página de todas as notícias
     if (document.getElementById('noticias-todas-container')) {
-        carregarNoticiasDoBackend().then(noticias => {
+        carregarNoticiasDoBackend('geral').then(noticias => {
             renderizarNoticias('noticias-todas-container', noticias);
         });
     }
@@ -762,7 +773,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Declaração de variáveis
+    // Lógica para alternar a visibilidade dos formulários (fica no HTML)
+    document.addEventListener('DOMContentLoaded', () => {
+        const subscribeForm = document.getElementById('subscribe-form');
+        const unsubscribeForm = document.getElementById('unsubscribe-form');
+        const showUnsubscribeLink = document.getElementById('show-unsubscribe-form-link');
+        const closeUnsubscribeBtn = document.getElementById('close-unsubscribe-form');
+
+        function closeUnsubscribeForm() {
+            if (unsubscribeForm && subscribeForm) {
+                unsubscribeForm.classList.add('d-none');
+                subscribeForm.classList.remove('d-none');
+            }
+        }
+
+        if (showUnsubscribeLink) {
+            showUnsubscribeLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (subscribeForm && unsubscribeForm) {
+                    subscribeForm.classList.add('d-none');
+                    unsubscribeForm.classList.remove('d-none');
+                }
+            });
+        }
+
+        if (closeUnsubscribeBtn) {
+            closeUnsubscribeBtn.addEventListener('click', () => {
+                closeUnsubscribeForm();
+            });
+        }
+    });
+
     const loginForm = document.getElementById('login-form');
     const adminPanel = document.getElementById('admin-panel');
     const newsForm = document.getElementById('news-form');
@@ -770,10 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const keyForm = document.getElementById('key-form');
     const requestAccessForm = document.getElementById('request-access-form');
 
-    // Novo botão para abrir o modal de perfil
     const openProfileModalBtn = document.getElementById('open-profile-modal-btn');
-
-    // Botões do perfil (dentro do modal)
     const logoutBtn = document.getElementById('logout-btn');
     const changePasswordBtn = document.getElementById('change-password-btn');
     const deleteAccountBtn = document.getElementById('delete-account-btn');
@@ -781,16 +819,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const changePasswordForm = document.getElementById('change-password-form');
     const deleteAccountForm = document.getElementById('delete-account-form');
 
-    // Painel Master Admin
     const manageRequestsBtn = document.getElementById('manage-requests-btn');
     const backToDashboardBtn = document.getElementById('back-to-dashboard-btn');
     const dashboardContent = document.getElementById('dashboard-content');
     const requestsManagement = document.getElementById('requests-management');
 
-    // Funções do Admin Panel
     const loadAdminPanelContent = async () => {
         const noticiasParaAdmin = await carregarNoticiasDoBackend();
         renderizarNoticiasAdmin(noticiasParaAdmin);
+
         const curriculoParaAdmin = await carregarCurriculoDoBackend();
         renderizarCurriculoAdmin(curriculoParaAdmin);
 
@@ -840,17 +877,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 noRequestsMessage.classList.add('d-none');
                 requests.forEach(request => {
                     requestsList.innerHTML += `
-                    <div class="card p-3 mb-3 card-request">
-                        <div>
-                            <p class="mb-1"><strong>E-mail:</strong> ${request.email}</p>
-                            <small class="text-muted">Solicitado em: ${new Date(request.requestDate).toLocaleDateString()}</small>
+                        <div class="card p-3 mb-3 card-request">
+                            <div>
+                                <p class="mb-1"><strong>E-mail:</strong> ${request.email}</p>
+                                <small class="text-muted">Solicitado em: ${new Date(request.requestDate).toLocaleDateString()}</small>
+                            </div>
+                            <div>
+                                <button class="btn btn-success btn-sm me-2 approve-btn" data-id="${request.id}">Aprovar</button>
+                                <button class="btn btn-danger btn-sm reject-btn" data-id="${request.id}">Rejeitar</button>
+                            </div>
                         </div>
-                        <div>
-                            <button class="btn btn-success btn-sm me-2 approve-btn" data-id="${request.id}">Aprovar</button>
-                            <button class="btn btn-danger btn-sm reject-btn" data-id="${request.id}">Rejeitar</button>
-                        </div>
-                    </div>
-                `;
+                    `;
                 });
 
                 document.querySelectorAll('.approve-btn').forEach(button => {
@@ -1061,10 +1098,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // LÓGICA DE LOGOUT MELHORADA
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
+        logoutBtn.addEventListener('click', async () => {
+            const token = localStorage.getItem('jwtToken');
+            if (token) {
+                try {
+                    const response = await fetch('http://localhost:8080/api/auth/logout', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    if (response.ok) {
+                        showMessage('Sessão encerrada com segurança.', 'success');
+                    } else {
+                        // Trata o caso de erro no servidor, mas continua o logout no cliente
+                        console.error('Erro ao fazer logout no servidor:', await response.text());
+                        showMessage('Erro ao encerrar a sessão no servidor.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Erro na requisição de logout:', error);
+                    // Continua o logout no cliente mesmo com erro de rede
+                    showMessage('Não foi possível conectar ao servidor para encerrar a sessão.', 'error');
+                }
+            }
             localStorage.clear();
-            window.location.href = 'admin-login.html';
+            setTimeout(() => window.location.href = 'admin-login.html', 500);
         });
     }
 
@@ -1236,6 +1296,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const noticiaId = document.getElementById('noticia-id').value;
             const titulo = document.getElementById('titulo-noticia').value;
             const texto = trixEditor.value;
+            const categoria = document.getElementById('categoria-noticia').value;
             const file = document.getElementById('imagem-noticia').files[0];
             const autor = localStorage.getItem('adminName');
             const token = localStorage.getItem('jwtToken');
@@ -1257,8 +1318,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     if (!uploadResponse.ok) {
-                        const errorBody = await uploadResponse.json();
-                        throw new Error(errorBody.error || 'Falha no upload da imagem.');
+                        const errorText = await uploadResponse.text();
+                        let errorData = { error: errorText };
+                        try {
+                            errorData = JSON.parse(errorText);
+                        } catch (e) {
+                            // Se não for JSON, a mensagem de erro padrão será usada.
+                        }
+                        throw new Error(errorData.error || 'Falha no upload da imagem.');
                     }
                     const uploadData = await uploadResponse.json();
                     imagemUrl = uploadData.url;
@@ -1273,7 +1340,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 imagemUrl = noticiaExistente.imagem;
             }
 
-            const novaNoticia = { id: noticiaId || null, titulo, imagem: imagemUrl, texto, autor: autor };
+            const novaNoticia = { id: noticiaId || null, titulo, imagem: imagemUrl, texto, autor: autor, categoria: categoria };
             const method = noticiaId ? 'PUT' : 'POST';
             const url = noticiaId ? `http://localhost:8080/api/noticias/${noticiaId}` : 'http://localhost:8080/api/noticias';
 
@@ -1384,7 +1451,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const file = attachment.file;
         const token = localStorage.getItem('jwtToken');
 
-        if (file && file.type.startsWith('image/')) {
+        // Adicionando suporte para vídeos e outros tipos de arquivo
+        const allowedFileTypes = ['image/', 'video/'];
+        const isAllowed = allowedFileTypes.some(type => file.type.startsWith(type));
+
+        if (file && isAllowed) {
             const formData = new FormData();
             formData.append('file', file);
 
@@ -1397,22 +1468,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (!response.ok) {
                     const errorData = await response.json();
-                    throw new Error(errorData.error || 'Falha no upload da imagem.');
+                    throw new Error(errorData.error || 'Falha no upload do arquivo.');
                 }
 
                 const uploadResult = await response.json();
-                const imageUrl = uploadResult.url;
+                const fileUrl = uploadResult.url;
 
+                // Definindo a URL do anexo, o Trix cuidará da renderização
                 attachment.setAttributes({
-                    url: imageUrl,
-                    href: imageUrl
+                    url: fileUrl,
+                    href: fileUrl
                 });
 
             } catch (error) {
                 console.error('Erro ao fazer upload do anexo:', error);
-                showMessage(`Erro ao anexar a imagem: ${error.message}`, 'error');
+                showMessage(`Erro ao anexar o arquivo: ${error.message}`, 'error');
                 attachment.remove();
             }
+        } else {
+            // Se o tipo de arquivo não for permitido
+            showMessage('Tipo de arquivo não permitido. Apenas imagens e vídeos são aceitos.', 'error');
+            attachment.remove(); // Remove o anexo do editor
         }
     };
 
@@ -1445,27 +1521,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Lógica para alternar entre os painéis de admin
-    if (manageRequestsBtn) {
-        manageRequestsBtn.addEventListener('click', () => {
-            dashboardContent.classList.add('d-none');
-            requestsManagement.classList.remove('d-none');
-            manageRequestsBtn.classList.add('d-none');
-            backToDashboardBtn.classList.remove('d-none');
+    // CORREÇÃO: Corrigindo a declaração e o uso das variáveis
+    const manageRequestsBtns = document.getElementById('manage-requests-btn');
+    const backToDashboardBtns = document.getElementById('back-to-dashboard-btn');
+    const dashboardContents = document.getElementById('dashboard-content');
+    const requestsManagements = document.getElementById('requests-management');
+
+    if (manageRequestsBtns) {
+        manageRequestsBtns.addEventListener('click', () => {
+            dashboardContents.classList.add('d-none');
+            requestsManagements.classList.remove('d-none');
+            manageRequestsBtns.classList.add('d-none');
+            backToDashboardBtns.classList.remove('d-none');
             carregarSolicitacoesDeAdmin();
         });
     }
 
-    if (backToDashboardBtn) {
-        backToDashboardBtn.addEventListener('click', () => {
-            dashboardContent.classList.remove('d-none');
-            requestsManagement.classList.add('d-none');
-            manageRequestsBtn.classList.remove('d-none');
-            backToDashboardBtn.classList.add('d-none');
+    if (backToDashboardBtns) {
+        backToDashboardBtns.addEventListener('click', () => {
+            dashboardContents.classList.remove('d-none');
+            requestsManagements.classList.add('d-none');
+            manageRequestsBtns.classList.remove('d-none');
+            backToDashboardBtns.classList.add('d-none');
         });
     }
-    
-    // --- Lógica do formulário de inscrição (NOVO) ---
+    // FIM DA CORREÇÃO
+
+    if (document.getElementById('noticias-atletica-container')) {
+        carregarNoticiasDoBackend('atletica').then(noticias => {
+            renderizarNoticias('noticias-atletica-container', noticias);
+        });
+    }
+
     const subscribeForm = document.getElementById('subscribe-form');
     if (subscribeForm) {
         subscribeForm.addEventListener('submit', async (e) => {
@@ -1494,7 +1581,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Lógica do formulário de cancelamento (NOVO) ---
     const unsubscribeForm = document.getElementById('unsubscribe-form');
     if (unsubscribeForm) {
         unsubscribeForm.addEventListener('submit', async (e) => {
