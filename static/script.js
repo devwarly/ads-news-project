@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let logoPathLight = 'img/2.png';
         let logoPathDark = 'img/1.png';
 
-        if (window.location.pathname.includes('/templates/atletica.html')) {
+        if (window.location.pathname.includes('/templates/atletica.html') || (window.location.pathname.includes('/templates/todas_noticias_atletica.html') || (window.location.pathname.includes('/templates/atleticaa.html')))) {
             logoPathLight = '../img/logo-prin-ads.png';
             logoPathDark = '../img/logo-prin-ads.png';
         }else if (window.location.pathname.includes('/templates/')) {
