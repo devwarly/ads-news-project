@@ -119,7 +119,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let logoPathLight = 'img/2.png';
         let logoPathDark = 'img/1.png';
 
-        if (window.location.pathname.includes('/templates/')) {
+        if (window.location.pathname.includes('/templates/atletica.html')) {
+            logoPathLight = '../img/logo-prin-ads.png';
+            logoPathDark = '../img/logo-prin-ads.png';
+        }else if (window.location.pathname.includes('/templates/')) {
             logoPathLight = '../img/2.png';
             logoPathDark = '../img/1.png';
         } else if (window.location.pathname.endsWith('/')) {
